@@ -1,4 +1,4 @@
-import type { ContaId, ContasState } from '../../types/domain'
+import type { ContaId, ContasState, PreviaEntrada } from '../../types/domain'
 
 export const PERCENTUAL_PADRAO = 0.3
 
@@ -11,11 +11,6 @@ export function criarEstadoInicial(percentual: number = PERCENTUAL_PADRAO): Cont
     percentual,
     valorAtual: 0,
     valorReserva: 0,
-    valorNovoConta1: 0,
-    valorNovoConta2: 0,
-    valorDiferenca: 0,
-    valorPorcentagem1: 0,
-    valorPorcentagem2: 0,
     valorDisponivelConta1: 0,
     valorDisponivelConta2: 0,
     totalContas: 0,
@@ -33,51 +28,68 @@ export function definirPercentual(estado: ContasState, percentual: number): Cont
   return { ...estado, percentual }
 }
 
-export function preverEntradaConta1(estado: ContasState, entrada: number): ContasState {
+export function previaEntradaConta1(estado: ContasState, entrada: number): PreviaEntrada {
   const valor = arredondarMoeda(Math.max(0, entrada))
-  const valorDiferenca = arredondarMoeda(Math.max(0, valor - estado.valorAtual))
-  const valorPorcentagem1 = arredondarMoeda(valorDiferenca * estado.percentual)
-  const valorPorcentagem2 = arredondarMoeda(valorDiferenca - valorPorcentagem1)
+  const diferenca = arredondarMoeda(Math.max(0, valor - estado.valorAtual))
+  const valorPorcentagem1 = arredondarMoeda(diferenca * estado.percentual)
+  const valorPorcentagem2 = arredondarMoeda(diferenca - valorPorcentagem1)
   const valorAtual = arredondarMoeda(estado.valorAtual + valorPorcentagem1)
   const valorReserva = arredondarMoeda(estado.valorReserva + valorPorcentagem2)
 
   return {
-    ...estado,
-    valorNovoConta1: valor,
-    valorDiferenca,
+    conta: 1,
+    valor,
+    diferenca,
     valorPorcentagem1,
     valorPorcentagem2,
     valorAtual,
     valorReserva,
     valorDisponivelConta1: valorReserva,
+    valorDisponivelConta2: estado.valorDisponivelConta2,
     totalContas: calcularTotalContas(valorReserva, estado.valorDisponivelConta2),
   }
 }
 
-export function confirmarEntradaConta1(estado: ContasState, entrada: number): ContasState {
-  return {
-    ...preverEntradaConta1(estado, entrada),
-    valorNovoConta1: 0,
-    valorDiferenca: 0,
-    valorPorcentagem1: 0,
-    valorPorcentagem2: 0,
-  }
-}
-
-export function preverEntradaConta2(estado: ContasState, entrada: number): ContasState {
+export function previaEntradaConta2(estado: ContasState, entrada: number): PreviaEntrada {
   const valor = arredondarMoeda(entrada)
   const valorDisponivelConta2 = arredondarMoeda(estado.valorDisponivelConta2 + valor)
 
   return {
-    ...estado,
-    valorNovoConta2: valor,
+    conta: 2,
+    valor,
+    diferenca: 0,
+    valorPorcentagem1: 0,
+    valorPorcentagem2: 0,
+    valorAtual: estado.valorAtual,
+    valorReserva: estado.valorReserva,
+    valorDisponivelConta1: estado.valorDisponivelConta1,
     valorDisponivelConta2,
     totalContas: calcularTotalContas(estado.valorDisponivelConta1, valorDisponivelConta2),
   }
 }
 
+export function confirmarEntradaConta1(estado: ContasState, entrada: number): ContasState {
+  const previa = previaEntradaConta1(estado, entrada)
+  return {
+    ...estado,
+    valorAtual: previa.valorAtual,
+    valorReserva: previa.valorReserva,
+    valorDisponivelConta1: previa.valorDisponivelConta1,
+    valorDisponivelConta2: previa.valorDisponivelConta2,
+    totalContas: previa.totalContas,
+  }
+}
+
 export function confirmarEntradaConta2(estado: ContasState, entrada: number): ContasState {
-  return { ...preverEntradaConta2(estado, entrada), valorNovoConta2: 0 }
+  const previa = previaEntradaConta2(estado, entrada)
+  return {
+    ...estado,
+    valorAtual: previa.valorAtual,
+    valorReserva: previa.valorReserva,
+    valorDisponivelConta1: previa.valorDisponivelConta1,
+    valorDisponivelConta2: previa.valorDisponivelConta2,
+    totalContas: previa.totalContas,
+  }
 }
 
 export function aplicarPagamento(
@@ -88,9 +100,7 @@ export function aplicarPagamento(
   const pagamento = arredondarMoeda(valor)
 
   if (conta === 1) {
-    const valorDisponivelConta1 = arredondarMoeda(
-      estado.valorDisponivelConta1 - pagamento,
-    )
+    const valorDisponivelConta1 = arredondarMoeda(estado.valorDisponivelConta1 - pagamento)
     return {
       ...estado,
       valorDisponivelConta1,

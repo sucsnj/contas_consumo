@@ -23,10 +23,12 @@ al�m de uma calculadora simples e calculos automaticos diarios baseados nas en
       comando OpenCode "context".
 - [x] Etapa 2 - Dominio e engine de calculo: src/types/domain.ts,
       src/lib/calc/engine.ts, src/lib/calc/format.ts e
-      src/lib/calc/engine.test.ts (13 testes cobrindo os exemplos da planilha).
+      src/lib/calc/engine.test.ts (17 testes cobrindo os exemplos da planilha).
+- [x] Etapa 3 - Store, persistencia e historico: src/store (reducer, provider,
+      contexto e hook), src/lib/db (client e queries), src/hooks/useDebounce.ts.
+      Total de 29 testes.
 
 ### Pendente
-- [ ] Etapa 3: store global, persistencia e historico
 - [ ] Etapa 4: interface do dashboard (contas, entradas, pagamentos)
 - [ ] Etapa 5: calculadora embutida
 - [ ] Etapa 6: auth bearer token, integracao final, lint/build/test
@@ -50,6 +52,26 @@ al�m de uma calculadora simples e calculos automaticos diarios baseados nas en
    subtrai do valor_disponivel da conta informada e recalcula o total.
 5. Calculadora: resultado final arredondado com teto (Math.ceil). Decimais permitidos.
 6. Percentual: configuravel (padrao 0.3 / 30%).
+
+### Mapeamento planilha -> codigo
+
+| Variavel da planilha        | Codigo                                  |
+| --------------------------- | ---------------------------------------- |
+| valor_atual                 | contas.valorAtual                        |
+| valor_reserva               | contas.valorReserva                      |
+| valor_disponivel_conta1     | contas.valorDisponivelConta1             |
+| valor_disponivel_conta2     | contas.valorDisponivelConta2             |
+| total_contas                | contas.totalContas                       |
+| percentual                  | contas.percentual                        |
+| valor_novo_conta1/2         | previa.valor (entrada em digitacao)       |
+| valor_diferenca             | previa.diferenca                         |
+| valor_porcentagem1 / 2      | previa.valorPorcentagem1 / 2             |
+
+- `contas` guarda somente valores confirmados; `previa` guarda o resultado da
+  entrada que esta sendo digitada (atualizada com debounce).
+- Nenhum valor de `contas` muda antes da confirmacao, evitando contagem dupla.
+- Ao confirmar, a entrada e zerada (como na planilha) e um Movimento
+  (historico) e gravado com o estado antes e depois.
 
 ## 5. Regras de calculo (origem: planilha)
 
@@ -97,18 +119,34 @@ src/
   PROJECT_STATUS.md e AGENTS.md.
 
 ### Etapa 2 - Dominio e engine
-- src/types/domain.ts: ContasState, ContaId, Movimento e MovimentoTipo.
+- src/types/domain.ts: ContasState, PreviaEntrada, ContaId, Movimento e MovimentoTipo.
 - src/lib/calc/engine.ts: regras puras da planilha
-  (criarEstadoInicial, preverEntradaConta1, confirmarEntradaConta1,
-  preverEntradaConta2, confirmarEntradaConta2, aplicarPagamento,
+  (criarEstadoInicial, previaEntradaConta1, previaEntradaConta2,
+  confirmarEntradaConta1, confirmarEntradaConta2, aplicarPagamento,
   definirPercentual, calcularTotalContas, arredondarMoeda).
 - src/lib/calc/format.ts: formatacao BRL/pt-BR e parsing de valores digitados.
-- src/lib/calc/engine.test.ts: 13 testes (exemplos de 500 e 700 da planilha,
+- src/lib/calc/engine.test.ts: 17 testes (exemplos de 500 e 700 da planilha,
   entradas negativas, percentual customizado, pagamentos).
 - vitest instalado e script "test" adicionado ao package.json.
 
+### Etapa 3 - Store, persistencia e historico
+- src/store/reducer.ts: reducer com acoes (hidratar, preverEntrada, limparPrevia,
+  confirmarEntradaConta1/2, pagamento, percentual, reiniciar) e geracao de Movimento.
+- src/store/contasContext.ts, ContasProvider.tsx e useContas.ts.
+  O provider hidrata do banco, persiste o estado atual e grava cada Movimento novo.
+- src/lib/db/client.ts: primitiva de armazenamento (localStorage com fallback
+  em memoria) - pronta para ser trocada por IndexedDB na etapa de PWA.
+- src/lib/db/queries/estado.ts e historico.ts: queries do banco, com validacao
+  dos dados lidos (obterEstado, persistirEstado, obterHistorico,
+  registrarMovimento, obterHistoricoDaConta, limparHistorico).
+- src/hooks/useDebounce.ts: debounce generico (300ms por padrao).
+- Testes: reducer.test.ts (8) e historico.test.ts (4). Total geral: 29 testes.
+- App.tsx ligado ao ContasProvider com resumo provisorio (status e total).
+
 ### Observacoes para as proximas etapas
 - Valores monetarios sao arredondados para 2 casas (arredondarMoeda).
-- Confirmar entrada zera valor_novo_conta1 e a diferenca/percentuais do preview.
+- Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
+  (ou Enter) confirma e zera o campo.
+- Ao reiniciar, o historico persistido tambem e limpo.
 - Pagamento em conta 1 subtrai do disponivel; a proxima entrada em conta 1
   redefine valor_disponivel_conta1 = valor_reserva (regra da planilha).

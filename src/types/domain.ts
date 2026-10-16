@@ -4,11 +4,19 @@ export interface ContasState {
   percentual: number
   valorAtual: number
   valorReserva: number
-  valorNovoConta1: number
-  valorNovoConta2: number
-  valorDiferenca: number
+  valorDisponivelConta1: number
+  valorDisponivelConta2: number
+  totalContas: number
+}
+
+export interface PreviaEntrada {
+  conta: ContaId
+  valor: number
+  diferenca: number
   valorPorcentagem1: number
   valorPorcentagem2: number
+  valorAtual: number
+  valorReserva: number
   valorDisponivelConta1: number
   valorDisponivelConta2: number
   totalContas: number
