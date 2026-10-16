@@ -4,6 +4,7 @@ import {
   calcular,
   calcularResultado,
   inserirTecla,
+  sanitizarExpressao,
 } from './calculadora'
 
 function digitar(expressaoInicial: string, teclas: string): string {
@@ -64,6 +65,28 @@ describe('inserirTecla', () => {
   it('limita o tamanho da expressao', () => {
     const limite = digitar('', '1234567890123456789012345678901234567890')
     expect(limite.length).toBeLessThanOrEqual(40)
+  })
+})
+
+describe('sanitizarExpressao', () => {
+  it('mantem expressoes validas', () => {
+    expect(sanitizarExpressao('150+30')).toBe('150+30')
+    expect(sanitizarExpressao('(1200-300)/2')).toBe('(1200-300)/2')
+  })
+
+  it('remove caracteres nao permitidos', () => {
+    expect(sanitizarExpressao('15a0+3b0')).toBe('150+30')
+    expect(sanitizarExpressao('150 R$ + 30')).toBe('150+30')
+  })
+
+  it('normaliza o separador decimal', () => {
+    expect(sanitizarExpressao('10,50+0,25')).toBe('10.50+0.25')
+  })
+
+  it('aplica as mesmas regras de tecla ao digitar', () => {
+    expect(sanitizarExpressao('150+30+')).toBe('150+30+')
+    expect(sanitizarExpressao('150+30+-')).toBe('150+30-')
+    expect(sanitizarExpressao('10(2)')).toBe('10*(2)')
   })
 })
 

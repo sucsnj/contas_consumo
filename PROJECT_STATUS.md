@@ -165,19 +165,22 @@ src/
 - Testes: App.test.tsx e DashboardPage.test.tsx (render estatico, sem DOM extra).
 
 ### Etapa 5 - Calculadora
-- src/lib/calc/calculadora.ts: regras puras da calculadora.
+- src/lib/calc/calculadora.ts: regras puras da calculadora inline.
   inserirTecla (aceita apenas numeros, sinais, parenteses e separador decimal;
   um sinal substitui o sinal pendente; "(" depois de numero vira "*(";
   um separador decimal por numero; parenteses balanceados; limite de 40),
+  sanitizarExpressao (aplica as regras de tecla sobre o texto inteiro),
   apagarTecla, calcular (tokenizador + algoritmo shunting-yard, sem eval) e
   calcularResultado (arredonda para cima com Math.ceil).
-- src/components/Calculadora.tsx: display (expressao e resultado), teclado
-  6 colunas com C, apagar, digitos, operadores, parenteses e "=",
-  alem do botao "Usar valor no pagamento".
-- Integracao: botao "Calculadora" dentro do painel de pagamento de cada conta;
-  "Usar valor" preenche o campo de pagamento e fecha a calculadora.
-- Estilos: secao "Calculadora" em src/index.css.
-- Testes: calculadora.test.ts (17) e Calculadora.test.tsx (2).
+- src/components/PainelPagamento.tsx: a calculadora e o proprio input do
+  pagamento. O usuario digita a expressao direto no campo; cada tecla e
+  sanitizada, o resultado aparece abaixo em tempo real (debounce de 300ms) e
+  "Confirmar pagamento" usa o valor ja arredondado para cima.
+- src/components/CampoValor.tsx: input reutilizavel (Enter confirma).
+- Estilos: secao "Pagamento com expressao inline" em src/index.css.
+- Nao existe keypad nem popup de calculadora: a logica e 100% inline no input.
+- Testes: calculadora.test.ts (21) e PainelPagamento.test.tsx (3).
+  Total geral: 57 testes.
 
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao

@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Calculator, CheckCircle2, CreditCard, Landmark, PiggyBank } from 'lucide-react'
-import {
-  analisarValor,
-  formatarMoeda,
-  formatarPercentual,
-  formatarValorDigitado,
-} from '../lib/calc/format'
+import { CheckCircle2, CreditCard, Landmark, PiggyBank } from 'lucide-react'
+import { analisarValor, formatarMoeda, formatarPercentual } from '../lib/calc/format'
 import { rotuloSituacao, tomSituacao } from '../lib/situacao'
 import { useContas } from '../store/useContas'
 import { useDebounce } from '../hooks/useDebounce'
 import type { ContaId } from '../types/domain'
 import { Badge } from './Badge'
-import { Calculadora } from './Calculadora'
 import { CampoValor } from './CampoValor'
+import { PainelPagamento } from './PainelPagamento'
 
 const NOME_CONTA: Record<ContaId, string> = {
   1: 'Conta 1',
@@ -26,9 +21,7 @@ interface CartaoContaProps {
 export function CartaoConta({ conta }: CartaoContaProps) {
   const { estado, despachar } = useContas()
   const [textoEntrada, setTextoEntrada] = useState('')
-  const [textoPagamento, setTextoPagamento] = useState('')
   const [pagamentoAberto, setPagamentoAberto] = useState(false)
-  const [calculadoraAberta, setCalculadoraAberta] = useState(false)
 
   const valorEntrada = useDebounce(analisarValor(textoEntrada) ?? 0)
   const previa = estado.previa !== null && estado.previa.conta === conta ? estado.previa : null
@@ -50,15 +43,6 @@ export function CartaoConta({ conta }: CartaoContaProps) {
         : { tipo: 'confirmarEntradaConta2', valor },
     )
     setTextoEntrada('')
-  }
-
-  function confirmarPagamento() {
-    const valor = analisarValor(textoPagamento)
-    if (valor === null || valor <= 0) return
-
-    despachar({ tipo: 'pagamento', conta, valor })
-    setTextoPagamento('')
-    setPagamentoAberto(false)
   }
 
   const tom = tomSituacao(disponivel)
@@ -142,64 +126,15 @@ export function CartaoConta({ conta }: CartaoContaProps) {
 
       {pagamentoAberto ? (
         <div className="pagamento">
-          <div className="campo">
-            <label className="campo-rotulo" htmlFor={`pagamento-conta-${conta}`}>
-              Valor do pagamento
-            </label>
-            <CampoValor
-              id={`pagamento-conta-${conta}`}
-              valor={textoPagamento}
-              aoAlterar={setTextoPagamento}
-              aoConfirmar={confirmarPagamento}
-              placeholder="0,00"
-            />
-            <p className="campo-dica">
-              Será subtraído do disponível de {NOME_CONTA[conta].toLowerCase()} e o total será
-              recalculado.
-            </p>
-          </div>
-          <div className="acoes-conta">
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => setCalculadoraAberta((aberta) => !aberta)}
-            >
-              <Calculator size={16} />
-              Calculadora
-            </button>
-          </div>
-          {calculadoraAberta ? (
-            <Calculadora
-              aoUsarValor={(valor) => {
-                setTextoPagamento(formatarValorDigitado(valor))
-                setCalculadoraAberta(false)
-              }}
-              aoFechar={() => setCalculadoraAberta(false)}
-            />
-          ) : null}
-          <div className="acoes-conta">
-            <button
-              type="button"
-              className="btn btn-danger"
-              disabled={
-                analisarValor(textoPagamento) === null ||
-                (analisarValor(textoPagamento) ?? 0) <= 0
-              }
-              onClick={confirmarPagamento}
-            >
-              Confirmar pagamento
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => {
-                setPagamentoAberto(false)
-                setTextoPagamento('')
-              }}
-            >
-              Cancelar
-            </button>
-          </div>
+          <PainelPagamento
+            conta={conta}
+            nome={NOME_CONTA[conta]}
+            aoConfirmar={(valor) => {
+              despachar({ tipo: 'pagamento', conta, valor })
+              setPagamentoAberto(false)
+            }}
+            aoCancelar={() => setPagamentoAberto(false)}
+          />
         </div>
       ) : null}
 

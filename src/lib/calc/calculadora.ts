@@ -58,6 +58,10 @@ export function apagarTecla(expressao: string): string {
   return expressao.slice(0, -1)
 }
 
+export function sanitizarExpressao(texto: string): string {
+  return [...texto].reduce((expressao, caractere) => inserirTecla(expressao, caractere), '')
+}
+
 type Token = { tipo: 'numero'; valor: number } | { tipo: 'operador'; valor: string } | { tipo: 'abre' } | { tipo: 'fecha' }
 
 const PRECEDENCIA: Record<string, number> = { '+': 1, '-': 1, '*': 2, '/': 2 }
