@@ -367,6 +367,109 @@ p {
   padding-top: 16px;
 }
 
+/* ---------- Calculadora ---------- */
+.calculadora {
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-100);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.calculadora-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.calculadora-titulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-gray-700);
+}
+
+.calculadora-display {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-300);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: right;
+  font-family: var(--font-mono);
+  margin-bottom: 10px;
+}
+
+.calculadora-expressao {
+  font-size: 13px;
+  color: var(--color-gray-500);
+  min-height: 18px;
+  margin: 0;
+  word-break: break-all;
+}
+
+.calculadora-resultado {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 4px 0 0;
+}
+
+.calculadora-teclas {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.tecla {
+  padding: 10px 0;
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-300);
+  background: var(--color-white);
+  color: var(--color-gray-900);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+.tecla:hover:not(:disabled) {
+  background: var(--color-gray-100);
+}
+
+.tecla:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tecla-operador {
+  background: var(--color-blue-soft);
+  border-color: var(--color-blue-soft);
+  color: var(--color-blue);
+}
+
+.tecla-acao {
+  background: var(--color-yellow-soft);
+  border-color: var(--color-yellow-soft);
+  color: var(--color-yellow);
+}
+
+.tecla-igual {
+  background: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-white);
+}
+
+.tecla-icone {
+  padding: 6px 10px;
+}
+
+.calculadora-usar {
+  width: 100%;
+  margin-top: 10px;
+}
+
 /* ---------- Badge ---------- */
 .badge {
   display: inline-flex;

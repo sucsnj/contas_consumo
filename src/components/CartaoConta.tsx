@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
-import { CheckCircle2, CreditCard, Landmark, PiggyBank } from 'lucide-react'
-import { analisarValor, formatarMoeda, formatarPercentual } from '../lib/calc/format'
+import { Calculator, CheckCircle2, CreditCard, Landmark, PiggyBank } from 'lucide-react'
+import {
+  analisarValor,
+  formatarMoeda,
+  formatarPercentual,
+  formatarValorDigitado,
+} from '../lib/calc/format'
 import { rotuloSituacao, tomSituacao } from '../lib/situacao'
 import { useContas } from '../store/useContas'
 import { useDebounce } from '../hooks/useDebounce'
 import type { ContaId } from '../types/domain'
 import { Badge } from './Badge'
+import { Calculadora } from './Calculadora'
 import { CampoValor } from './CampoValor'
 
 const NOME_CONTA: Record<ContaId, string> = {
@@ -22,6 +28,7 @@ export function CartaoConta({ conta }: CartaoContaProps) {
   const [textoEntrada, setTextoEntrada] = useState('')
   const [textoPagamento, setTextoPagamento] = useState('')
   const [pagamentoAberto, setPagamentoAberto] = useState(false)
+  const [calculadoraAberta, setCalculadoraAberta] = useState(false)
 
   const valorEntrada = useDebounce(analisarValor(textoEntrada) ?? 0)
   const previa = estado.previa !== null && estado.previa.conta === conta ? estado.previa : null
@@ -151,6 +158,25 @@ export function CartaoConta({ conta }: CartaoContaProps) {
               recalculado.
             </p>
           </div>
+          <div className="acoes-conta">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setCalculadoraAberta((aberta) => !aberta)}
+            >
+              <Calculator size={16} />
+              Calculadora
+            </button>
+          </div>
+          {calculadoraAberta ? (
+            <Calculadora
+              aoUsarValor={(valor) => {
+                setTextoPagamento(formatarValorDigitado(valor))
+                setCalculadoraAberta(false)
+              }}
+              aoFechar={() => setCalculadoraAberta(false)}
+            />
+          ) : null}
           <div className="acoes-conta">
             <button
               type="button"

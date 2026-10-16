@@ -30,9 +30,11 @@ al�m de uma calculadora simples e calculos automaticos diarios baseados nas en
 - [x] Etapa 4 - Dashboard: componentes de UI (Badge, CampoValor, CartaoConta,
       CartaoResumo, ConfiguracaoPercentual, ListaHistorico), pagina DashboardPage,
       estilos do dashboard e lucide-react para icones. Total de 34 testes.
+- [x] Etapa 5 - Calculadora embutida: src/lib/calc/calculadora.ts (parser
+      proprio, sem eval) e src/components/Calculadora.tsx integrada ao painel
+      de pagamento das duas contas. Total de 52 testes.
 
 ### Pendente
-- [ ] Etapa 5: calculadora embutida
 - [ ] Etapa 6: auth bearer token, integracao final, lint/build/test
 
 
@@ -162,12 +164,25 @@ src/
 - lucide-react instalado para icones.
 - Testes: App.test.tsx e DashboardPage.test.tsx (render estatico, sem DOM extra).
 
+### Etapa 5 - Calculadora
+- src/lib/calc/calculadora.ts: regras puras da calculadora.
+  inserirTecla (aceita apenas numeros, sinais, parenteses e separador decimal;
+  um sinal substitui o sinal pendente; "(" depois de numero vira "*(";
+  um separador decimal por numero; parenteses balanceados; limite de 40),
+  apagarTecla, calcular (tokenizador + algoritmo shunting-yard, sem eval) e
+  calcularResultado (arredonda para cima com Math.ceil).
+- src/components/Calculadora.tsx: display (expressao e resultado), teclado
+  6 colunas com C, apagar, digitos, operadores, parenteses e "=",
+  alem do botao "Usar valor no pagamento".
+- Integracao: botao "Calculadora" dentro do painel de pagamento de cada conta;
+  "Usar valor" preenche o campo de pagamento e fecha a calculadora.
+- Estilos: secao "Calculadora" em src/index.css.
+- Testes: calculadora.test.ts (17) e Calculadora.test.tsx (2).
+
 ### Observacoes para as proximas etapas
-- Valores monetarios sao arredondados para 2 casas (arredondarMoeda).
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
   (ou Enter) confirma e zera o campo.
 - Ao reiniciar, o historico persistido tambem e limpo.
 - Pagamento em conta 1 subtrai do disponivel; a proxima entrada em conta 1
   redefine valor_disponivel_conta1 = valor_reserva (regra da planilha).
-- O painel de pagamento ja existe em CartaoConta; a calculadora deve ser
-  encaixada nesse painel (Etapa 5).
+- A calculadora nunca usa eval/Function: o parser e proprio (shunting-yard).
