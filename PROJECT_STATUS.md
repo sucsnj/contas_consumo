@@ -27,9 +27,11 @@ al�m de uma calculadora simples e calculos automaticos diarios baseados nas en
 - [x] Etapa 3 - Store, persistencia e historico: src/store (reducer, provider,
       contexto e hook), src/lib/db (client e queries), src/hooks/useDebounce.ts.
       Total de 29 testes.
+- [x] Etapa 4 - Dashboard: componentes de UI (Badge, CampoValor, CartaoConta,
+      CartaoResumo, ConfiguracaoPercentual, ListaHistorico), pagina DashboardPage,
+      estilos do dashboard e lucide-react para icones. Total de 34 testes.
 
 ### Pendente
-- [ ] Etapa 4: interface do dashboard (contas, entradas, pagamentos)
 - [ ] Etapa 5: calculadora embutida
 - [ ] Etapa 6: auth bearer token, integracao final, lint/build/test
 
@@ -143,6 +145,23 @@ src/
 - Testes: reducer.test.ts (8) e historico.test.ts (4). Total geral: 29 testes.
 - App.tsx ligado ao ContasProvider com resumo provisorio (status e total).
 
+### Etapa 4 - Dashboard
+- src/lib/situacao.ts: tom e rotulo de situacao (verde/vermelho/cinza).
+- src/components/Badge.tsx: indicador de situacao reaproveitado.
+- src/components/CampoValor.tsx: input de valor reutilizavel (Enter confirma).
+- src/components/CartaoConta.tsx: cartao por conta com entrada, previa
+  (debounce de 300ms), registro de entrada, pagamento e nota da reserva.
+- src/components/CartaoResumo.tsx: cards de total, valor atual e reserva.
+- src/components/ConfiguracaoPercentual.tsx: percentual configuravel (0 a 100).
+- src/components/ListaHistorico.tsx: ultimos 8 movimentos com icone, valor e total.
+- src/pages/DashboardPage.tsx: composicao da pagina, botao Reiniciar com
+  confirmacao e estado de carregamento.
+- src/App.tsx: ContasProvider + DashboardPage.
+- src/index.css: secoes de estilo do dashboard (cores de situacao, previa,
+  historico, layout responsivo por grid).
+- lucide-react instalado para icones.
+- Testes: App.test.tsx e DashboardPage.test.tsx (render estatico, sem DOM extra).
+
 ### Observacoes para as proximas etapas
 - Valores monetarios sao arredondados para 2 casas (arredondarMoeda).
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
@@ -150,3 +169,5 @@ src/
 - Ao reiniciar, o historico persistido tambem e limpo.
 - Pagamento em conta 1 subtrai do disponivel; a proxima entrada em conta 1
   redefine valor_disponivel_conta1 = valor_reserva (regra da planilha).
+- O painel de pagamento ja existe em CartaoConta; a calculadora deve ser
+  encaixada nesse painel (Etapa 5).

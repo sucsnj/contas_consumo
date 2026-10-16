@@ -36,7 +36,7 @@ body {
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-white);
+  background: var(--color-gray-50);
   color: var(--color-gray-900);
   -webkit-font-smoothing: antialiased;
 }
@@ -62,8 +62,10 @@ p {
   font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.5px;
+  margin-bottom: 4px;
 }
 
+/* ---------- Cards ---------- */
 .card {
   background: var(--color-white);
   border: 1px solid var(--color-gray-100);
@@ -73,20 +75,222 @@ p {
 }
 
 .card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 16px;
   font-weight: 700;
   margin: 0 0 12px;
 }
 
-.grid {
-  display: grid;
+/* ---------- Cores de situacao ---------- */
+.valor-verde {
+  color: var(--color-green);
+}
+
+.valor-azul {
+  color: var(--color-blue);
+}
+
+.valor-vermelho {
+  color: var(--color-red);
+}
+
+.valor-amarelo {
+  color: var(--color-yellow);
+}
+
+.valor-cinza {
+  color: var(--color-gray-500);
+}
+
+/* ---------- Header ---------- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
-.grid-2 {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+.page-subtitle {
+  color: var(--color-gray-500);
+  margin: 0;
+  font-size: 14px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Resumo ---------- */
+.resumo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.resumo-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.resumo-rotulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-gray-500);
+  margin: 0;
+}
+
+.resumo-valor {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 8px 0 0;
+}
+
+/* ---------- Contas ---------- */
+.contas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.conta-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.conta-nome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.conta-saldo-rotulo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-gray-500);
+  margin: 0;
+}
+
+.conta-saldo {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 4px 0 16px;
+}
+
+.conta-rodape {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 16px 0 0;
+}
+
+/* ---------- Campos ---------- */
+.campo {
+  margin-bottom: 12px;
+}
+
+.campo-rotulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: 6px;
+}
+
+.campo-dica {
+  font-size: 12px;
+  color: var(--color-gray-500);
+  margin: 6px 0 0;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: var(--font-sans);
+  background: var(--color-white);
+  color: var(--color-gray-900);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 3px var(--color-blue-soft);
+}
+
+.input-curto {
+  width: 80px;
+}
+
+.config-percentual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-100);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+}
+
+.config-percentual .campo-rotulo {
+  margin: 0;
+}
+
+/* ---------- Previa ---------- */
+.previa {
+  background: var(--color-blue-soft);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.previa-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+}
+
+.previa-linha {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--color-gray-700);
+  padding: 3px 0;
+}
+
+.previa-linha span:last-child {
+  font-weight: 700;
+}
+
+/* ---------- Botoes ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -99,10 +303,7 @@ p {
   font-weight: 600;
   font-family: var(--font-sans);
   cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .btn:disabled {
@@ -124,9 +325,17 @@ p {
   color: var(--color-white);
 }
 
+.btn-success:hover:not(:disabled) {
+  background: #15803d;
+}
+
 .btn-danger {
   background: var(--color-red);
   color: var(--color-white);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
 }
 
 .btn-warning {
@@ -144,23 +353,21 @@ p {
   background: var(--color-gray-50);
 }
 
-.input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--color-gray-300);
-  border-radius: 10px;
-  font-size: 16px;
-  font-family: var(--font-sans);
-  background: var(--color-white);
-  color: var(--color-gray-900);
+/* ---------- Acoes e pagamento ---------- */
+.acoes-conta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
-.input:focus {
-  outline: none;
-  border-color: var(--color-blue);
-  box-shadow: 0 0 0 3px var(--color-blue-soft);
+.pagamento {
+  border-top: 1px solid var(--color-gray-100);
+  margin-top: 16px;
+  padding-top: 16px;
 }
 
+/* ---------- Badge ---------- */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -172,27 +379,85 @@ p {
   white-space: nowrap;
 }
 
-.badge-green {
+.badge-verde {
   background: var(--color-green-soft);
   color: var(--color-green);
 }
 
-.badge-blue {
+.badge-azul {
   background: var(--color-blue-soft);
   color: var(--color-blue);
 }
 
-.badge-red {
+.badge-vermelho {
   background: var(--color-red-soft);
   color: var(--color-red);
 }
 
-.badge-yellow {
+.badge-amarelo {
   background: var(--color-yellow-soft);
   color: var(--color-yellow);
 }
 
-.badge-gray {
+.badge-cinza {
   background: var(--color-gray-100);
   color: var(--color-gray-500);
+}
+
+/* ---------- Historico ---------- */
+.historico-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.historico-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.historico-item:last-child {
+  border-bottom: none;
+}
+
+.historico-desc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.historico-titulo {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.historico-meta {
+  display: block;
+  font-size: 12px;
+  color: var(--color-gray-500);
+}
+
+.historico-valor {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.historico-total {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--color-gray-500);
+}
+
+.vazio {
+  color: var(--color-gray-500);
+  font-size: 14px;
+  text-align: center;
+  padding: 16px 0;
+  margin: 0;
 }
