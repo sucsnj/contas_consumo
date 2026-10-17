@@ -17,8 +17,10 @@ pagamentos e calcula tudo automaticamente conforme o usuário digita.
 
 ```bash
 npm install
-npm run dev      # desenvolvimento
-npm run build    # build de producao (tsc + vite build)
+npm run dev      # desenvolvimento (HMR)
+npm run start    # producao local: gera o build e serve em http://localhost:4173
+npm run build    # apenas o build de producao (tsc + vite build) em dist/
+npm run preview  # apenas serve o dist/ ja gerado
 npm run lint     # lint
 npm test         # testes
 ```

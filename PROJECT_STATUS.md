@@ -116,6 +116,7 @@ src/
 
 - Desenvolvimento: npm run dev
 - Build: npm run build
+- Producao local: npm run start (gera o build e serve o dist/)
 - Lint: npm run lint
 - Testes: npm test
 
