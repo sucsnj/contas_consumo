@@ -1,13 +1,17 @@
-import { PiggyBank, RotateCcw, TrendingUp, Wallet } from 'lucide-react'
+import { LogOut, PiggyBank, RotateCcw, ShieldCheck, TrendingUp, Wallet } from 'lucide-react'
 import { CartaoConta } from '../components/CartaoConta'
 import { CartaoResumo } from '../components/CartaoResumo'
 import { ConfiguracaoPercentual } from '../components/ConfiguracaoPercentual'
+import { IndicadorCarregamento } from '../components/IndicadorCarregamento'
 import { ListaHistorico } from '../components/ListaHistorico'
+import { Badge } from '../components/Badge'
+import { useAuth } from '../lib/auth/useAuth'
 import { tomSituacao } from '../lib/situacao'
 import { useContas } from '../store/useContas'
 
 export function DashboardPage() {
   const { estado, despachar, status } = useContas()
+  const { sair } = useAuth()
   const { contas } = estado
 
   function reiniciar() {
@@ -17,13 +21,7 @@ export function DashboardPage() {
   }
 
   if (status === 'carregando') {
-    return (
-      <div className="app-shell">
-        <main className="app-main">
-          <p className="vazio">Carregando dados...</p>
-        </main>
-      </div>
-    )
+    return <IndicadorCarregamento />
   }
 
   return (
@@ -35,10 +33,17 @@ export function DashboardPage() {
             <p className="page-subtitle">Controle de saldos com divisão por percentual</p>
           </div>
           <div className="header-actions">
+            <Badge tom="azul">
+              <ShieldCheck size={12} /> Autenticado
+            </Badge>
             <ConfiguracaoPercentual />
             <button type="button" className="btn btn-outline" onClick={reiniciar}>
               <RotateCcw size={16} />
               Reiniciar
+            </button>
+            <button type="button" className="btn btn-outline" onClick={sair}>
+              <LogOut size={16} />
+              Sair
             </button>
           </div>
         </header>

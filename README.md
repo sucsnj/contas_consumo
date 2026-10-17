@@ -1,32 +1,41 @@
-# React + TypeScript + Vite
+# Contas
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Porte de uma planilha Excel de controle financeiro para webapp.
 
-Currently, two official plugins are available:
+O app controla dois saldos (Conta 1 e Conta 2) com um valor total em comum,
+divide a diferença entre as entradas pelo percentual configurado, registra
+pagamentos e calcula tudo automaticamente conforme o usuário digita.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- Vite 8 + React 19 + TypeScript 6
+- oxlint (lint) e vitest (testes)
+- Sem backend: persistência local no navegador
+- Autenticação simples por token bearer (VITE_BEARER_TOKEN no `.env`)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Como rodar
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev      # desenvolvimento
+npm run build    # build de producao (tsc + vite build)
+npm run lint     # lint
+npm test         # testes
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Autenticacao
+
+Defina o token em `.env` (veja `.env.example`):
+
+```
+VITE_BEARER_TOKEN=seu-token-aqui
+```
+
+A sessao fica salva no navegador. Como o app nao possui backend, essa e uma
+autenticacao de nivel simples: o token e validado no cliente.
+
+## Regras de negocio
+
+O contexto completo do projeto (regras da planilha, mapeamento das variaveis,
+estrutura de pastas e registro de alteracoes) esta em **PROJECT_STATUS.md**.
+As regras do agente estao em **AGENTS.md**.

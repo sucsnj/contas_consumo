@@ -1,6 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { criarEstadoInicial, definirPercentual } from '../lib/calc/engine'
+import { ContextoAuth } from '../lib/auth/contextoAuth'
+import type { ValorAuth } from '../lib/auth/contextoAuth'
 import { ContasContext } from '../store/contasContext'
 import type { ValorContas } from '../store/contasContext'
 import type { Movimento, PreviaEntrada } from '../types/domain'
@@ -10,13 +12,22 @@ function normalizar(html: string): string {
   return html.replaceAll('\u00a0', ' ')
 }
 
+const valorAuth: ValorAuth = {
+  status: 'autenticado',
+  token: 'token',
+  entrar: () => true,
+  sair: () => undefined,
+}
+
 function renderizarCom(estado: ValorContas['estado']): string {
   const valor: ValorContas = { despachar: () => undefined, status: 'pronto', estado }
   return normalizar(
     renderToStaticMarkup(
-      <ContasContext.Provider value={valor}>
-        <DashboardPage />
-      </ContasContext.Provider>,
+      <ContextoAuth.Provider value={valorAuth}>
+        <ContasContext.Provider value={valor}>
+          <DashboardPage />
+        </ContasContext.Provider>
+      </ContextoAuth.Provider>,
     ),
   )
 }
@@ -103,5 +114,12 @@ describe('DashboardPage', () => {
     expect(html).toContain('Parte atual (30%)')
     expect(html).toContain('R$ 150,00')
     expect(html).toContain('R$ 350,00')
+  })
+
+  it('mostra o indicador de autenticacao e a acao de sair', () => {
+    const html = renderizarCom({ contas: criarEstadoInicial(), previa: null, movimentos: [] })
+
+    expect(html).toContain('Autenticado')
+    expect(html).toContain('Sair')
   })
 })

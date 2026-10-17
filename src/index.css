@@ -374,6 +374,48 @@ p {
   margin: 8px 0 0;
 }
 
+/* ---------- Login ---------- */
+.login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 24px 16px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.login-subtitulo {
+  color: var(--color-gray-500);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.login-erro {
+  color: var(--color-red);
+  background: var(--color-red-soft);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.login-botao {
+  width: 100%;
+}
+
 /* ---------- Badge ---------- */
 .badge {
   display: inline-flex;

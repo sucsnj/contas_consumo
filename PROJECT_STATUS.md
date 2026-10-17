@@ -30,12 +30,20 @@ al�m de uma calculadora simples e calculos automaticos diarios baseados nas en
 - [x] Etapa 4 - Dashboard: componentes de UI (Badge, CampoValor, CartaoConta,
       CartaoResumo, ConfiguracaoPercentual, ListaHistorico), pagina DashboardPage,
       estilos do dashboard e lucide-react para icones. Total de 34 testes.
-- [x] Etapa 5 - Calculadora embutida: src/lib/calc/calculadora.ts (parser
-      proprio, sem eval) e src/components/Calculadora.tsx integrada ao painel
-      de pagamento das duas contas. Total de 52 testes.
+- [x] Etapa 5 - Calculadora inline no input de pagamento:
+      src/lib/calc/calculadora.ts (parser proprio, sem eval) e
+      src/components/PainelPagamento.tsx. Total de 57 testes.
+- [x] Etapa 6 - Autenticacao por token bearer (src/lib/auth),
+      LoginPage, botao Sair e indicador "Autenticado" no dashboard,
+      query de sessao, README e comando context atualizados.
+      Total de 61 testes. TSC, lint, testes e build verificados.
 
-### Pendente
-- [ ] Etapa 6: auth bearer token, integracao final, lint/build/test
+### Pendente (proximas etapas, fora do escopo atual)
+- [ ] PWA: service worker, manifesto e icones para Windows e Android.
+- [ ] Migrar a persistencia de localStorage para IndexedDB
+      (offline real e dados para analises).
+- [ ] Empacotamento para Windows e Android (ferramentas a decidir).
+- [ ] Analises sobre o historico (consultas em src/lib/db/queries).
 
 
 ## 4. Decisoes de negocio registradas
@@ -182,6 +190,24 @@ src/
 - Testes: calculadora.test.ts (21) e PainelPagamento.test.tsx (3).
   Total geral: 57 testes.
 
+### Etapa 6 - Autenticacao e integracao final
+- src/lib/auth/token.ts: le VITE_BEARER_TOKEN do .env, valida o token digitado
+  e monta o cabecalho "Authorization: Bearer <token>" (util para quando
+  houver API no futuro).
+- src/lib/auth/contextoAuth.ts, AuthProvider.tsx e useAuth.ts: sessao simples
+  com estados carregando / nao-autenticado / autenticado, sessao salva no
+  navegador e revalidada contra o .env ao abrir o app.
+- src/lib/db/queries/sessao.ts: obterTokenSalvo, salvarToken, limparToken.
+- src/pages/LoginPage.tsx: tela de acesso com campo de token, aviso de token
+  invalido e aviso quando VITE_BEARER_TOKEN nao esta definido.
+- src/components/IndicadorCarregamento.tsx: unifica a tela de carregamento
+  usada pelo App e pelo DashboardPage.
+- src/App.tsx: AuthProvider -> LoginPage ou ContasProvider + DashboardPage.
+- DashboardPage: badge "Autenticado" e botao "Sair".
+- README.md e .opencode/command/context.md atualizados.
+- Testes: token.test.ts (3) e DashboardPage.test.tsx ajustado (5).
+  Total geral: 61 testes. TSC, lint, testes e build verificados.
+
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
   (ou Enter) confirma e zera o campo.
@@ -189,3 +215,7 @@ src/
 - Pagamento em conta 1 subtrai do disponivel; a proxima entrada em conta 1
   redefine valor_disponivel_conta1 = valor_reserva (regra da planilha).
 - A calculadora nunca usa eval/Function: o parser e proprio (shunting-yard).
+- A autenticacao e de nivel simples e validada no cliente (nao ha backend).
+  Para uma API real, use cabecalhoAuthorization() nas requisicoes.
+- A persistencia usa localStorage com fallback em memoria; a troca por
+  IndexedDB deve passar por src/lib/db/client.ts e src/lib/db/queries.
