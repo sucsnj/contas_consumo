@@ -26,7 +26,7 @@ export function inserirTecla(expressao: string, tecla: string): string {
   if (expressao.length >= LIMITE_EXPRESSAO && !['⌫', 'C'].includes(tecla)) return expressao
 
   const ultimo = expressao.at(-1) ?? ''
-  const ehSinal = tecla === '+' || tecla === '-'
+  const ehSinal = tecla === '+' || tecla === '-' || tecla === '*' || tecla === '/'
 
   // um sinal substitui o sinal pendente: "150+30+" com "-" vira "150+30-"
   if (ehSinal && REGEX_OPERADOR.test(ultimo) && ultimo !== '*' && ultimo !== '/') {
