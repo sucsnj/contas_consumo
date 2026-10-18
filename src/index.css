@@ -416,6 +416,145 @@ p {
   width: 100%;
 }
 
+/* ---------- Botao desfazer flutuante ---------- */
+.botao-desfazer {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--color-yellow);
+  background: var(--color-white);
+  color: var(--color-yellow);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  animation: deslizar 0.2s ease-out;
+}
+
+.botao-desfazer:hover {
+  background: var(--color-yellow);
+  color: var(--color-white);
+}
+
+@keyframes deslizar {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ---------- Botao desfazer flutuante ---------- */
+.botao-desfazer {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--color-yellow);
+  background: var(--color-white);
+  color: var(--color-yellow);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  animation: deslizar 0.2s ease-out;
+}
+
+.botao-desfazer:hover {
+  background: var(--color-yellow);
+  color: var(--color-white);
+}
+
+@keyframes deslizar {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ---------- Botao icone ---------- */
+.btn-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-300);
+  background: var(--color-white);
+  color: var(--color-gray-700);
+  cursor: pointer;
+}
+
+.btn-icone:hover {
+  background: var(--color-gray-100);
+}
+
+/* ---------- Botoes mini ---------- */
+.btn-mini {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+/* ---------- Pagamentos rapidos ---------- */
+.pagamentos-rapidos {
+  margin-top: 16px;
+  border-top: 1px solid var(--color-gray-100);
+  padding-top: 12px;
+}
+
+.pagamentos-rapidos-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+}
+
+/* ---------- Aviso de erro ---------- */
+.aviso-erro {
+  font-size: 12px;
+  color: var(--color-red);
+  margin: 6px 0 0;
+  font-weight: 600;
+}
+
+/* ---------- Valor ajustavel ---------- */
+.valor-ajustavel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.valor-ajustavel .acoes-ajuste {
+  display: flex;
+  gap: 6px;
+}
+
 /* ---------- Badge ---------- */
 .badge {
   display: inline-flex;

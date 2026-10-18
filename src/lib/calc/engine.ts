@@ -34,11 +34,11 @@ export function porcentagemValida(valor: number): boolean {
 }
 
 export function entradaValida(estado: ContasState, entrada: number): boolean {
-  return entrada >= estado.saldo
+  return entrada >= estado.reserva
 }
 
 export function previaEntrada(estado: ContasState, entrada: number): PreviaEntrada {
-  const diferenca = arredondarMoeda(Math.max(0, entrada - estado.saldo))
+  const diferenca = arredondarMoeda(Math.max(0, entrada - estado.reserva))
   const porcentagem2 = arredondarMoeda(1 - estado.porcentagem1)
   const porcentagemReserva = arredondarMoeda(diferenca * estado.porcentagem1)
   const porcentagemSaldo = arredondarMoeda(diferenca * porcentagem2)
