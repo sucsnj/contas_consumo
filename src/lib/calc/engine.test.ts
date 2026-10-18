@@ -1,170 +1,204 @@
 import { describe, expect, it } from 'vitest'
 import {
-  aplicarPagamento,
-  confirmarEntradaConta1,
-  confirmarEntradaConta2,
+  PORCENTAGEM_PADRAO,
+  ajustar,
+  calcularTotal,
+  confirmarEntrada,
+  confirmarEntrada2,
   criarEstadoInicial,
-  definirPercentual,
-  previaEntradaConta1,
-  previaEntradaConta2,
+  definirPorcentagem,
+  entradaValida,
+  pagar,
+  pagamentoPossivel,
+  previaEntrada,
+  previaEntrada2,
+  porcentagemValida,
 } from './engine'
 
 describe('criarEstadoInicial', () => {
-  it('comeca zerado com 30% de percentual', () => {
+  it('comeca zerado com 30% de padrao', () => {
     expect(criarEstadoInicial()).toEqual({
-      percentual: 0.3,
-      valorAtual: 0,
-      valorReserva: 0,
-      valorDisponivelConta1: 0,
-      valorDisponivelConta2: 0,
-      totalContas: 0,
+      saldo: 0,
+      saldo2: 0,
+      reserva: 0,
+      porcentagem1: PORCENTAGEM_PADRAO,
     })
   })
 })
 
-describe('entrada na conta 1', () => {
-  it('previa de 500 reproduz o exemplo da planilha', () => {
-    const previa = previaEntradaConta1(criarEstadoInicial(), 500)
+describe('calcularTotal', () => {
+  it('soma saldo e saldo2, sem a reserva', () => {
+    const estado = { saldo: 350, saldo2: 150, reserva: 900, porcentagem1: 0.3 }
+
+    expect(calcularTotal(estado)).toBe(500)
+  })
+})
+
+describe('previaEntrada', () => {
+  it('reproduz o exemplo de referencia do ADR-0002', () => {
+    const estado = { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 }
+    const previa = previaEntrada(estado, 700)
+
+    expect(previa.diferenca).toBe(350)
+    expect(previa.porcentagem2).toBe(0.7)
+    expect(previa.porcentagemReserva).toBe(105)
+    expect(previa.porcentagemSaldo).toBe(245)
+    expect(previa.novoReserva).toBe(255)
+    expect(previa.novoSaldo).toBe(595)
+    expect(previa.total).toBe(595)
+  })
+
+  it('manda 30% para a reserva e 70% para o saldo', () => {
+    const previa = previaEntrada(criarEstadoInicial(), 500)
 
     expect(previa.diferenca).toBe(500)
-    expect(previa.valorPorcentagem1).toBe(150)
-    expect(previa.valorPorcentagem2).toBe(350)
-    expect(previa.valorAtual).toBe(150)
-    expect(previa.valorReserva).toBe(350)
-    expect(previa.valorDisponivelConta1).toBe(350)
-    expect(previa.totalContas).toBe(350)
-  })
-
-  it('confirmar 500 aplica os valores da planilha', () => {
-    const estado = confirmarEntradaConta1(criarEstadoInicial(), 500)
-
-    expect(estado.valorAtual).toBe(150)
-    expect(estado.valorReserva).toBe(350)
-    expect(estado.valorDisponivelConta1).toBe(350)
-    expect(estado.valorDisponivelConta2).toBe(0)
-    expect(estado.totalContas).toBe(350)
-  })
-
-  it('previa de 700 reproduz o segundo exemplo da planilha', () => {
-    const anterior = confirmarEntradaConta1(criarEstadoInicial(), 500)
-    const previa = previaEntradaConta1(anterior, 700)
-
-    expect(previa.diferenca).toBe(550)
-    expect(previa.valorPorcentagem1).toBe(165)
-    expect(previa.valorPorcentagem2).toBe(385)
-    expect(previa.valorAtual).toBe(315)
-    expect(previa.valorReserva).toBe(735)
-  })
-
-  it('confirmar 700 aplica atual 315 e reserva 735', () => {
-    const anterior = confirmarEntradaConta1(criarEstadoInicial(), 500)
-    const estado = confirmarEntradaConta1(anterior, 700)
-
-    expect(estado.valorAtual).toBe(315)
-    expect(estado.valorReserva).toBe(735)
-    expect(estado.valorDisponivelConta1).toBe(735)
-    expect(estado.totalContas).toBe(735)
-  })
-
-  it('mantem a diferenca em zero quando a entrada e menor que o valor atual', () => {
-    const anterior = confirmarEntradaConta1(criarEstadoInicial(), 500)
-    const previa = previaEntradaConta1(anterior, 100)
-
-    expect(previa.diferenca).toBe(0)
-    expect(previa.valorPorcentagem1).toBe(0)
-    expect(previa.valorPorcentagem2).toBe(0)
-  })
-
-  it('ignora entradas negativas na conta 1', () => {
-    const estadoInicial = criarEstadoInicial()
-
-    expect(confirmarEntradaConta1(estadoInicial, -100)).toEqual(estadoInicial)
+    expect(previa.novoReserva).toBe(150)
+    expect(previa.novoSaldo).toBe(350)
   })
 
   it('respeita percentual customizado', () => {
-    const estado = confirmarEntradaConta1(
-      definirPercentual(criarEstadoInicial(), 0.5),
-      500,
-    )
+    const estado = definirPorcentagem(criarEstadoInicial(), 0.5)
+    const previa = previaEntrada(estado, 500)
 
-    expect(estado.valorAtual).toBe(250)
-    expect(estado.valorReserva).toBe(250)
+    expect(previa.novoReserva).toBe(250)
+    expect(previa.novoSaldo).toBe(250)
+  })
+
+  it('zera a diferenca quando a entrada iguala o saldo', () => {
+    const estado = { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 }
+    const previa = previaEntrada(estado, 350)
+
+    expect(previa.diferenca).toBe(0)
+    expect(previa.novoSaldo).toBe(350)
+    expect(previa.novoReserva).toBe(150)
+  })
+
+  it('nao altera o estado na previa', () => {
+    const estado = criarEstadoInicial()
+    previaEntrada(estado, 500)
+
+    expect(estado.saldo).toBe(0)
+    expect(estado.reserva).toBe(0)
   })
 
   it('arredonda para centavos', () => {
-    const estado = confirmarEntradaConta1(criarEstadoInicial(), 100.5)
+    const previa = previaEntrada(criarEstadoInicial(), 100.5)
 
-    expect(estado.valorAtual).toBe(30.15)
-    expect(estado.valorReserva).toBe(70.35)
-  })
-
-  it('nao altera o estado confirmado na previa', () => {
-    const estadoInicial = criarEstadoInicial()
-    previaEntradaConta1(estadoInicial, 500)
-
-    expect(estadoInicial.valorAtual).toBe(0)
-    expect(estadoInicial.valorReserva).toBe(0)
+    expect(previa.novoReserva).toBe(30.15)
+    expect(previa.novoSaldo).toBe(70.35)
   })
 })
 
-describe('entrada na conta 2', () => {
-  it('soma ao disponivel da conta 2', () => {
-    const estado = confirmarEntradaConta2(criarEstadoInicial(), 1000)
+describe('entradaValida', () => {
+  it('rejeita entrada menor que o saldo', () => {
+    const estado = { saldo: 350, saldo2: 0, reserva: 0, porcentagem1: 0.3 }
 
-    expect(estado.valorDisponivelConta2).toBe(1000)
-    expect(estado.totalContas).toBe(1000)
-  })
-
-  it('aceita entrada negativa', () => {
-    const comSaldo = confirmarEntradaConta2(criarEstadoInicial(), 400)
-    const estado = confirmarEntradaConta2(comSaldo, -700)
-
-    expect(estado.valorDisponivelConta2).toBe(-300)
-    expect(estado.totalContas).toBe(-300)
-  })
-
-  it('previa nao altera o disponivel confirmado', () => {
-    const comSaldo = confirmarEntradaConta2(criarEstadoInicial(), 300)
-    const previa = previaEntradaConta2(comSaldo, 1000)
-
-    expect(previa.valorDisponivelConta2).toBe(1300)
-    expect(comSaldo.valorDisponivelConta2).toBe(300)
-  })
-
-  it('mantem o total como soma dos disponiveis', () => {
-    const comConta1 = confirmarEntradaConta1(criarEstadoInicial(), 500)
-    const comConta2 = confirmarEntradaConta2(comConta1, 1000)
-
-    expect(comConta2.totalContas).toBe(1350)
-    expect(comConta2.totalContas).toBe(
-      comConta2.valorDisponivelConta1 + comConta2.valorDisponivelConta2,
-    )
+    expect(entradaValida(estado, 350)).toBe(true)
+    expect(entradaValida(estado, 700)).toBe(true)
+    expect(entradaValida(estado, 349.99)).toBe(false)
   })
 })
 
-describe('pagamento', () => {
-  it('subtrai do disponivel da conta 1 e recalcula o total', () => {
-    const comSaldo = confirmarEntradaConta1(criarEstadoInicial(), 500)
-    const estado = aplicarPagamento(comSaldo, 1, 100)
+describe('confirmarEntrada', () => {
+  it('aplica novo saldo e nova reserva', () => {
+    const estado = { saldo: 350, saldo2: 100, reserva: 150, porcentagem1: 0.3 }
+    const resultado = confirmarEntrada(estado, 700)
 
-    expect(estado.valorDisponivelConta1).toBe(250)
-    expect(estado.valorReserva).toBe(350)
-    expect(estado.totalContas).toBe(250)
+    expect(resultado).toEqual({ saldo: 595, saldo2: 100, reserva: 255, porcentagem1: 0.3 })
+    expect(calcularTotal(resultado!)).toBe(695)
   })
 
-  it('subtrai do disponivel da conta 2 e recalcula o total', () => {
-    const comSaldo = confirmarEntradaConta2(criarEstadoInicial(), 1000)
-    const estado = aplicarPagamento(comSaldo, 2, 250)
+  it('devolve null quando a entrada e invalida', () => {
+    const estado = { saldo: 350, saldo2: 0, reserva: 0, porcentagem1: 0.3 }
 
-    expect(estado.valorDisponivelConta2).toBe(750)
-    expect(estado.totalContas).toBe(750)
+    expect(confirmarEntrada(estado, 100)).toBeNull()
+  })
+})
+
+describe('entrada2', () => {
+  it('substitui o saldo2 pelo valor absoluto', () => {
+    const estado = { saldo: 350, saldo2: 300, reserva: 0, porcentagem1: 0.3 }
+    const previa = previaEntrada2(estado, 1000)
+
+    expect(previa.saldo2).toBe(1000)
+    expect(previa.total).toBe(1350)
+
+    const resultado = confirmarEntrada2(estado, 1000)
+    expect(resultado.saldo2).toBe(1000)
+    expect(calcularTotal(resultado)).toBe(1350)
   })
 
-  it('permite saldo negativo ao pagar mais que o disponivel', () => {
-    const comSaldo = confirmarEntradaConta2(criarEstadoInicial(), 100)
-    const estado = aplicarPagamento(comSaldo, 2, 300)
+  it('aceita valor negativo', () => {
+    const resultado = confirmarEntrada2(criarEstadoInicial(), -200)
 
-    expect(estado.valorDisponivelConta2).toBe(-200)
-    expect(estado.totalContas).toBe(-200)
+    expect(resultado.saldo2).toBe(-200)
+    expect(calcularTotal(resultado)).toBe(-200)
+  })
+})
+
+describe('pagamentos', () => {
+  const estado = { saldo: 595, saldo2: 200, reserva: 255, porcentagem1: 0.3 }
+
+  it('paga do saldo', () => {
+    const resultado = pagar(estado, 'saldo', 95)
+
+    expect(resultado).toEqual({ ...estado, saldo: 500 })
+  })
+
+  it('paga da reserva sem alterar o total', () => {
+    const resultado = pagar(estado, 'reserva', 55)
+
+    expect(resultado).toEqual({ ...estado, reserva: 200 })
+    expect(calcularTotal(resultado!)).toBe(calcularTotal(estado))
+  })
+
+  it('paga do saldo2', () => {
+    const resultado = pagar(estado, 'saldo2', 100)
+
+    expect(resultado).toEqual({ ...estado, saldo2: 100 })
+  })
+
+  it('bloqueia pagamento maior que o disponivel', () => {
+    expect(pagar(estado, 'saldo', 600)).toBeNull()
+    expect(pagar(estado, 'reserva', 256)).toBeNull()
+    expect(pagar(estado, 'saldo2', 201)).toBeNull()
+  })
+
+  it('bloqueia pagamento zero ou negativo', () => {
+    expect(pagamentoPossivel(estado, 'saldo', 0)).toBe(false)
+    expect(pagar(estado, 'saldo', -10)).toBeNull()
+  })
+
+  it('aceita pagar exatamente o disponivel, deixando zero', () => {
+    const resultado = pagar(estado, 'saldo', 595)
+
+    expect(resultado).toEqual({ ...estado, saldo: 0 })
+  })
+})
+
+describe('ajustes', () => {
+  it('ajusta cada campo livremente', () => {
+    const inicial = criarEstadoInicial()
+
+    expect(ajustar(inicial, 'saldo', 123.456)).toEqual({ ...inicial, saldo: 123.46 })
+    expect(ajustar(inicial, 'saldo2', -50)).toEqual({ ...inicial, saldo2: -50 })
+    expect(ajustar(inicial, 'reserva', 999)).toEqual({ ...inicial, reserva: 999 })
+  })
+
+  it('rejeita porcentagem fora de 0 a 1', () => {
+    const inicial = criarEstadoInicial()
+
+    expect(porcentagemValida(0)).toBe(true)
+    expect(porcentagemValida(1)).toBe(true)
+    expect(porcentagemValida(-0.01)).toBe(false)
+    expect(porcentagemValida(1.01)).toBe(false)
+    expect(ajustar(inicial, 'porcentagem1', 1.5)).toBeNull()
+  })
+
+  it('definirPorcentagem ignora valor invalido', () => {
+    const inicial = criarEstadoInicial()
+
+    expect(definirPorcentagem(inicial, 0.6).porcentagem1).toBe(0.6)
+    expect(definirPorcentagem(inicial, 2)).toEqual(inicial)
   })
 })

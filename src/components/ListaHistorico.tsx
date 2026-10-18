@@ -1,48 +1,49 @@
-import { ArrowDownCircle, ArrowUpCircle, Percent, Wallet } from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, Percent, RotateCcw, Sliders } from 'lucide-react'
 import { formatarMoeda } from '../lib/calc/format'
 import type { Movimento, MovimentoTipo } from '../types/domain'
-import { tomSituacao } from '../lib/situacao'
 
 const ROTULO: Record<MovimentoTipo, string> = {
-  'entrada-conta1': 'Entrada na conta 1',
-  'entrada-conta2': 'Entrada na conta 2',
-  'pagamento-conta1': 'Pagamento da conta 1',
-  'pagamento-conta2': 'Pagamento da conta 2',
-  percentual: 'Percentual alterado',
+  entrada: 'Entrada na conta 1',
+  entrada2: 'Entrada na conta 2',
+  'pagamento-saldo': 'Pagamento do saldo',
+  'pagamento-reserva': 'Pagamento da reserva',
+  'pagamento-saldo2': 'Pagamento do saldo2',
+  ajuste: 'Ajuste manual',
+  reversao: 'Reversão',
 }
 
 function IconeMovimento({ tipo }: { tipo: MovimentoTipo }) {
   switch (tipo) {
-    case 'entrada-conta1':
-    case 'entrada-conta2':
+    case 'entrada':
+    case 'entrada2':
       return <ArrowDownCircle size={18} />
-    case 'pagamento-conta1':
-    case 'pagamento-conta2':
+    case 'pagamento-saldo':
+    case 'pagamento-reserva':
+    case 'pagamento-saldo2':
       return <ArrowUpCircle size={18} />
-    case 'percentual':
-      return <Percent size={18} />
+    case 'ajuste':
+      return <Sliders size={18} />
+    case 'reversao':
+      return <RotateCcw size={18} />
   }
 }
 
 function corMovimento(movimento: Movimento): string {
-  if (movimento.tipo.startsWith('entrada')) {
-    return movimento.valor >= 0 ? 'valor-verde' : 'valor-vermelho'
+  if (movimento.tipo === 'pagamento-saldo' || movimento.tipo === 'pagamento-reserva' || movimento.tipo === 'pagamento-saldo2') {
+    return 'valor-vermelho'
   }
-  if (movimento.tipo.startsWith('pagamento')) return 'valor-vermelho'
-  return 'valor-amarelo'
+  if (movimento.tipo === 'reversao') return 'valor-amarelo'
+  if (movimento.tipo === 'ajuste') return 'valor-cinza'
+  return 'valor-verde'
 }
 
-interface ListaHistoricoProps {
-  movimentos: Movimento[]
-}
-
-export function ListaHistorico({ movimentos }: ListaHistoricoProps) {
+export function ListaHistorico({ movimentos }: { movimentos: Movimento[] }) {
   const recentes = [...movimentos].reverse().slice(0, 8)
 
   return (
     <section className="card">
       <h2 className="card-title">
-        <Wallet size={16} /> Histórico recente
+        <Percent size={16} /> Movimentos
       </h2>
 
       {recentes.length === 0 ? (
@@ -57,7 +58,7 @@ export function ListaHistorico({ movimentos }: ListaHistoricoProps) {
                   <span className="historico-titulo">{ROTULO[movimento.tipo]}</span>
                   <span className="historico-meta">
                     {new Date(movimento.em).toLocaleString('pt-BR')} - total{' '}
-                    {formatarMoeda(movimento.depois.totalContas)}
+                    {formatarMoeda(movimento.depois.saldo + movimento.depois.saldo2)}
                   </span>
                 </span>
               </span>
@@ -70,12 +71,7 @@ export function ListaHistorico({ movimentos }: ListaHistoricoProps) {
         </ul>
       )}
 
-      <p className="historico-total">
-        Total de movimentos: {movimentos.length} - total atual{' '}
-        <strong className={`valor-${tomSituacao(movimentos.at(-1)?.depois.totalContas ?? 0)}`}>
-          {formatarMoeda(movimentos.at(-1)?.depois.totalContas ?? 0)}
-        </strong>
-      </p>
+      <p className="historico-total">Total de movimentos: {movimentos.length}</p>
     </section>
   )
 }

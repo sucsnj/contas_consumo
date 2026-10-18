@@ -39,11 +39,36 @@ al�m de uma calculadora simples e calculos automaticos diarios baseados nas en
       Total de 61 testes. TSC, lint, testes e build verificados.
 
 ### Pendente (proximas etapas, fora do escopo atual)
+- [ ] Reformulacao do modelo de dominio (ver secao 10): engine, store, UI,
+      historico de 3 estados, desfazer em 5s e ajustes inline.
 - [ ] PWA: service worker, manifesto e icones para Windows e Android.
 - [ ] Migrar a persistencia de localStorage para IndexedDB
       (offline real e dados para analises).
 - [ ] Empacotamento para Windows e Android (ferramentas a decidir).
 - [ ] Analises sobre o historico (consultas em src/lib/db/queries).
+
+## 10. Reformulacao do modelo de dominio
+
+O modelo de negocio foi reformulado. Decisoes registradas em
+`docs/adr/` e terminologia em `docs/GLOSSARIO.md`.
+
+Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
+`total = saldo + saldo2` (a reserva **nao** entra no total).
+
+- `entrada` e o saldo **desejado** da conta 1 (nao e deposito):
+  `diferenca = max(0, entrada - saldo)`; 30% da diferenca vai para a
+  reserva e 70% para o saldo; a confirmacao aplica `novo_reserva`,
+  `novo_saldo`, zera `entrada` e recalcula `total`.
+- `entrada2` e o valor **absoluto** do novo `saldo2` (substitui).
+- Previa em tempo real antes de confirmar.
+- Calculadora inline nos inputs (sem keypad), resultado com teto.
+- Tres pagamentos a partir do resultado: `pagar_saldo`, `pagar_reserva`,
+  `pagar_saldo2`; pagamento nunca deixa saldo negativo.
+- Desfazer: botao flutuante por 5s apos qualquer operacao.
+- Historico: no maximo 3 estados, persistido, com data/hora; reverter
+  nao cria novo estado.
+- Ajustes inline por campo (saldo, saldo2, reserva, porcentagem1).
+- Migracao automatica dos dados salvos do modelo antigo.
 
 
 ## 4. Decisoes de negocio registradas

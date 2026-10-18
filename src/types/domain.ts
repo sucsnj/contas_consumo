@@ -1,41 +1,52 @@
-export type ContaId = 1 | 2
-
 export interface ContasState {
-  percentual: number
-  valorAtual: number
-  valorReserva: number
-  valorDisponivelConta1: number
-  valorDisponivelConta2: number
-  totalContas: number
+  saldo: number
+  saldo2: number
+  reserva: number
+  porcentagem1: number
 }
 
+export type CampoAjustavel = 'saldo' | 'saldo2' | 'reserva' | 'porcentagem1'
+export type DestinoPagamento = 'saldo' | 'reserva' | 'saldo2'
+
 export interface PreviaEntrada {
-  conta: ContaId
-  valor: number
+  entrada: number
   diferenca: number
-  valorPorcentagem1: number
-  valorPorcentagem2: number
-  valorAtual: number
-  valorReserva: number
-  valorDisponivelConta1: number
-  valorDisponivelConta2: number
-  totalContas: number
+  porcentagem2: number
+  porcentagemReserva: number
+  porcentagemSaldo: number
+  novoReserva: number
+  novoSaldo: number
+  total: number
+}
+
+export interface PreviaEntrada2 {
+  entrada2: number
+  saldo2: number
+  total: number
 }
 
 export type MovimentoTipo =
-  | 'entrada-conta1'
-  | 'entrada-conta2'
-  | 'pagamento-conta1'
-  | 'pagamento-conta2'
-  | 'percentual'
+  | 'entrada'
+  | 'entrada2'
+  | 'pagamento-saldo'
+  | 'pagamento-reserva'
+  | 'pagamento-saldo2'
+  | 'ajuste'
+  | 'reversao'
 
 export interface Movimento {
   id: string
   tipo: MovimentoTipo
-  conta: ContaId | null
+  campo: CampoAjustavel | DestinoPagamento | null
   valor: number
-  percentual: number
   em: string
   antes: ContasState
   depois: ContasState
+}
+
+export interface EstadoHistorico {
+  id: string
+  em: string
+  rotulo: string
+  estado: ContasState
 }

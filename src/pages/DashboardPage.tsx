@@ -1,18 +1,39 @@
-import { LogOut, PiggyBank, RotateCcw, ShieldCheck, TrendingUp, Wallet } from 'lucide-react'
-import { CartaoConta } from '../components/CartaoConta'
-import { CartaoResumo } from '../components/CartaoResumo'
-import { ConfiguracaoPercentual } from '../components/ConfiguracaoPercentual'
+import { useEffect, useState } from 'react'
+import { LogOut, RotateCcw, ShieldCheck } from 'lucide-react'
+import { Badge } from '../components/Badge'
+import { BotaoDesfazer } from '../components/BotaoDesfazer'
+import { Entrada2Campo } from '../components/Entrada2Campo'
+import { EntradaCalculo } from '../components/EntradaCalculo'
+import { HistoricoEstados } from '../components/HistoricoEstados'
 import { IndicadorCarregamento } from '../components/IndicadorCarregamento'
 import { ListaHistorico } from '../components/ListaHistorico'
-import { Badge } from '../components/Badge'
+import { ValorAjustavel } from '../components/ValorAjustavel'
+import { calcularTotal } from '../lib/calc/engine'
+import { formatarMoeda, formatarPercentual } from '../lib/calc/format'
+import { rotuloSituacao, tomSituacao } from '../lib/situacao'
 import { useAuth } from '../lib/auth/useAuth'
-import { tomSituacao } from '../lib/situacao'
 import { useContas } from '../store/useContas'
+
+const JANELA_DESFAZER_MS = 5000
 
 export function DashboardPage() {
   const { estado, despachar, status } = useContas()
   const { sair } = useAuth()
+  const [desfazerVisivel, setDesfazerVisivel] = useState(false)
   const { contas } = estado
+
+  const totalOperacoes = estado.movimentos.length
+
+  useEffect(() => {
+    if (totalOperacoes === 0) {
+      setDesfazerVisivel(false)
+      return
+    }
+
+    setDesfazerVisivel(true)
+    const temporizador = setTimeout(() => setDesfazerVisivel(false), JANELA_DESFAZER_MS)
+    return () => clearTimeout(temporizador)
+  }, [totalOperacoes])
 
   function reiniciar() {
     if (window.confirm('Zerar os saldos e apagar o histórico?')) {
@@ -20,9 +41,19 @@ export function DashboardPage() {
     }
   }
 
+  function desfazer() {
+    const anterior = estado.movimentos.at(-1)?.antes
+    if (anterior === undefined) return
+    despachar({ tipo: 'reverter', estado: anterior })
+    setDesfazerVisivel(false)
+  }
+
   if (status === 'carregando') {
     return <IndicadorCarregamento />
   }
+
+  const total = calcularTotal(contas)
+  const tomTotal = tomSituacao(total)
 
   return (
     <div className="app-shell">
@@ -30,13 +61,15 @@ export function DashboardPage() {
         <header className="page-header">
           <div>
             <h1 className="app-title">Contas</h1>
-            <p className="page-subtitle">Controle de saldos com divisão por percentual</p>
+            <p className="page-subtitle">
+              Entrada dividida entre saldo e reserva - total {formatarMoeda(total)}{' '}
+              <Badge tom={tomTotal}>{rotuloSituacao(total)}</Badge>
+            </p>
           </div>
           <div className="header-actions">
             <Badge tom="azul">
               <ShieldCheck size={12} /> Autenticado
             </Badge>
-            <ConfiguracaoPercentual />
             <button type="button" className="btn btn-outline" onClick={reiniciar}>
               <RotateCcw size={16} />
               Reiniciar
@@ -49,32 +82,47 @@ export function DashboardPage() {
         </header>
 
         <section className="resumo-grid">
-          <CartaoResumo
-            rotulo="Total das contas"
-            valor={contas.totalContas}
-            tom={tomSituacao(contas.totalContas)}
-            icone={<Wallet size={14} />}
+          <ValorAjustavel
+            campo="saldo"
+            rotulo="Saldo"
+            valor={contas.saldo}
+            formatar={formatarMoeda}
+            tom={tomSituacao(contas.saldo)}
           />
-          <CartaoResumo
-            rotulo="Valor atual"
-            valor={contas.valorAtual}
-            tom="azul"
-            icone={<TrendingUp size={14} />}
-          />
-          <CartaoResumo
+          <ValorAjustavel
+            campo="reserva"
             rotulo="Reserva"
-            valor={contas.valorReserva}
+            valor={contas.reserva}
+            formatar={formatarMoeda}
             tom="amarelo"
-            icone={<PiggyBank size={14} />}
+          />
+          <ValorAjustavel
+            campo="saldo2"
+            rotulo="Saldo 2"
+            valor={contas.saldo2}
+            formatar={formatarMoeda}
+            tom="azul"
+          />
+          <ValorAjustavel
+            campo="porcentagem1"
+            rotulo="Porcentagem (reserva)"
+            valor={contas.porcentagem1}
+            formatar={formatarPercentual}
+            tom="cinza"
           />
         </section>
 
-        <section className="contas-grid">
-          <CartaoConta conta={1} />
-          <CartaoConta conta={2} />
+        <section className="grid-2">
+          <EntradaCalculo />
+          <Entrada2Campo />
         </section>
 
-        <ListaHistorico movimentos={estado.movimentos} />
+        <section className="grid-2">
+          <HistoricoEstados />
+          <ListaHistorico movimentos={estado.movimentos} />
+        </section>
+
+        <BotaoDesfazer visivel={desfazerVisivel} aoDesfazer={desfazer} />
       </main>
     </div>
   )
