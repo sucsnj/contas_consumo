@@ -1,11 +1,11 @@
 # PROJECT_STATUS - Projeto Contas
 
-## 1. Prop�sito
+## 1. Propósito
 
 Porte de uma planilha Excel de controle financeiro para um webapp.
 
 A planilha modela o controle de dois saldos contaveis com um valor total em comum entre eles,
-al�m de uma calculadora simples e calculos automaticos diarios baseados nas entradas do usuario.
+alem de uma calculadora simples e calculos automaticos diarios baseados nas entradas do usuario.
 
 ## 2. Stack atual
 
@@ -52,18 +52,24 @@ al�m de uma calculadora simples e calculos automaticos diarios baseados nas en
 O modelo de negocio foi reformulado. Decisoes registradas em
 `docs/adr/` e terminologia em `docs/GLOSSARIO.md`.
 
+Regras vigentes da entrada e dos pagamentos: `docs/adr/0007-entrada-como-alvo-da-reserva.md`
+e `docs/adr/0008-pagamento-com-saldo-negativo.md`.
+
 Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
 `total = saldo + saldo2` (a reserva **nao** entra no total).
 
 - `entrada` e o saldo **desejado** da conta 1 (nao e deposito):
-  `diferenca = max(0, entrada - saldo)`; 30% da diferenca vai para a
+  `diferenca = max(0, entrada - reserva)`; 30% da diferenca vai para a
   reserva e 70% para o saldo; a confirmacao aplica `novo_reserva`,
   `novo_saldo`, zera `entrada` e recalcula `total`.
+  A entrada so pode ser confirmada quando `entrada >= reserva`.
 - `entrada2` e o valor **absoluto** do novo `saldo2` (substitui).
 - Previa em tempo real antes de confirmar.
 - Calculadora inline nos inputs (sem keypad), resultado com teto.
 - Tres pagamentos a partir do resultado: `pagar_saldo`, `pagar_reserva`,
-  `pagar_saldo2`; pagamento nunca deixa saldo negativo.
+  `pagar_saldo2`; o valor pode ser **maior que o existente** e o campo
+  pode ficar negativo (`saldo = 1000`, pagar `1500` deixa `-500`).
+  Unica restricao: o valor precisa ser positivo e finito.
 - Desfazer: botao flutuante por 5s apos qualquer operacao.
 - Historico: no maximo 3 estados, persistido, com data/hora; reverter
   nao cria novo estado.
@@ -234,12 +240,33 @@ src/
 - Testes: token.test.ts (3) e DashboardPage.test.tsx ajustado (5).
   Total geral: 61 testes. TSC, lint, testes e build verificados.
 
+### Ajuste de regra - entrada e pagamento com saldo negativo
+- Regra da entrada: `diferenca = max(0, entrada - reserva)` (antes
+  `entrada - saldo`) e validacao `entrada >= reserva`. O codigo ja usava
+  `reserva`; testes e documentacao foram alinhados.
+- Regra do pagamento: `pagar saldo`, `pagar reserva` e `pagar saldo2` aceitam
+  valor maior que o existente e deixam o campo negativo. A validacao ficou
+  apenas no valor (positivo e finito).
+- src/lib/calc/engine.ts: `pagamentoPossivel(valor)` nao recebe mais o estado;
+  nova funcao pura `saldoAposPagamento(estado, destino, valor)` devolve o valor
+  resultante e `pagar` passa a aplica-la.
+- src/components/EntradaCalculo.tsx: o botao de pagamento nunca e desabilitado e
+  mostra o saldo resultante (classe `btn-negativo` quando negativo).
+- src/index.css: `.btn-saldo-restante` e `.btn-negativo`.
+- docs/adr/0007-entrada-como-alvo-da-reserva.md e
+  docs/adr/0008-pagamento-com-saldo-negativo.md criados; ADR-0002 e ADR-0003
+  marcadas como substituidas na parte afetada.
+- docs/GLOSSARIO.md: `entrada`, `diferenca` e as tres linhas de pagamento
+  atualizadas; nova entrada `saldoAposPagamento`.
+- Testes: engine.test.ts (24) e reducer.test.ts (13) ajustados para as novas
+  regras. Total geral: 76 testes. TSC, lint, testes e build verificados.
+
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
   (ou Enter) confirma e zera o campo.
 - Ao reiniciar, o historico persistido tambem e limpo.
-- Pagamento em conta 1 subtrai do disponivel; a proxima entrada em conta 1
-  redefine valor_disponivel_conta1 = valor_reserva (regra da planilha).
+- Pagamento subtrai do destino escolhido e pode deixar o campo negativo;
+  pagar a reserva nao altera o `total` (que e sempre `saldo + saldo2`).
 - A calculadora nunca usa eval/Function: o parser e proprio (shunting-yard).
 - A autenticacao e de nivel simples e validada no cliente (nao ha backend).
   Para uma API real, use cabecalhoAuthorization() nas requisicoes.

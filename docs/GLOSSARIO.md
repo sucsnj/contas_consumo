@@ -8,9 +8,9 @@ Termos do negocio do app. Os nomes de tela e de codigo derivam daqui.
 | saldo2 | `saldo2` | Saldo da conta 2. |
 | reserva | `reserva` |Carteira separada, **nao entra no total**. |
 | total | `total` | `saldo + saldo2`. Derivado, nunca digitado. |
-| entrada | `entrada` | Saldo **desejado** para a conta 1. Nao e deposito. Precisa ser maior ou igual ao `saldo`. |
+| entrada | `entrada` | Saldo **desejado** para a conta 1. Nao e deposito. Precisa ser maior ou igual a `reserva`. |
 | entrada2 | `entrada2` | Novo valor **absoluto** do `saldo2` (substitui). O campo ja vem preenchido com o saldo2 atual. |
-| diferenca | `diferenca` | `entrada - saldo`, nunca negativa (menor que zero retorna 0). |
+| diferenca | `diferenca` | `entrada - reserva`, nunca negativa (menor que zero retorna 0). |
 | porcentagem1 | `porcentagem1` | Fracao entre 0 e 1, padrao `0.3`. Multiplica a diferenca e o resultado vai para a **reserva**. |
 | porcentagem2 | `porcentagem2` | `1 - porcentagem1`. Complemento que vai para o **saldo**. |
 | porcentagem_reserva | `porcentagem_reserva` | `diferenca * porcentagem1`. |
@@ -21,9 +21,10 @@ Termos do negocio do app. Os nomes de tela e de codigo derivam daqui.
 | confirmar | - | Aplica a previa. Ate la nada muda. |
 | expressao | `expressao` | Texto digitado no input, com numeros, sinais e parenteses. |
 | resultado | `resultado` | Valor da expressao, arredondado **para cima**. |
-| pagar saldo | `pagar_saldo` | Subtrai do `saldo`. |
-| pagar reserva | `pagar_reserva` | Subtrai da `reserva`. |
-| pagar saldo2 | `pagar_saldo2` | Subtrai do `saldo2`. |
+| pagar saldo | `pagar_saldo` | Subtrai do `saldo`. Pode deixar o campo negativo. |
+| pagar reserva | `pagar_reserva` | Subtrai da `reserva`. Pode deixar o campo negativo. Nao altera o `total`. |
+| pagar saldo2 | `pagar_saldo2` | Subtrai do `saldo2`. Pode deixar o campo negativo. |
+| saldo apos pagamento | `saldoAposPagamento` | Valor resultante do campo depois de pagar: `valorDoCampo - valor`. |
 | ajuste | - | Edicao livre de `saldo`, `saldo2`, `reserva` ou `porcentagem1`, sem passar pelo calculo principal. |
 | estado (historico) | - | Snapshot dos saldos gravado a cada operacao, com data e hora. Maximo de 3. |
 | desfazer | - | Reverter para o estado anterior. Botao flutuante visivel por 5 segundos apos qualquer operacao. |

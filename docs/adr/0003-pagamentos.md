@@ -1,7 +1,12 @@
 # ADR-0003: Tres pagamentos a partir da expressao do input
 
-- Status: aceito
+- Status: aceito (restricao de negativo substituida pela ADR-0008)
 - Data: 2026-10-18
+
+> **Vigente:** a regra de negativo foi revertida pela
+> [ADR-0008](0008-pagamento-com-saldo-negativo.md): pagamento maior que o
+> saldo e permitido e deixa o campo negativo. Este registro e mantido como
+> historico.
 
 ## Contexto
 

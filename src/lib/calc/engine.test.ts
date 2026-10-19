@@ -13,6 +13,7 @@ import {
   previaEntrada,
   previaEntrada2,
   porcentagemValida,
+  saldoAposPagamento,
 } from './engine'
 
 describe('criarEstadoInicial', () => {
@@ -39,13 +40,13 @@ describe('previaEntrada', () => {
     const estado = { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 }
     const previa = previaEntrada(estado, 700)
 
-    expect(previa.diferenca).toBe(350)
+    expect(previa.diferenca).toBe(550)
     expect(previa.porcentagem2).toBe(0.7)
-    expect(previa.porcentagemReserva).toBe(105)
-    expect(previa.porcentagemSaldo).toBe(245)
-    expect(previa.novoReserva).toBe(255)
-    expect(previa.novoSaldo).toBe(595)
-    expect(previa.total).toBe(595)
+    expect(previa.porcentagemReserva).toBe(165)
+    expect(previa.porcentagemSaldo).toBe(385)
+    expect(previa.novoReserva).toBe(315)
+    expect(previa.novoSaldo).toBe(735)
+    expect(previa.total).toBe(735)
   })
 
   it('manda 30% para a reserva e 70% para o saldo', () => {
@@ -64,9 +65,9 @@ describe('previaEntrada', () => {
     expect(previa.novoSaldo).toBe(250)
   })
 
-  it('zera a diferenca quando a entrada iguala o saldo', () => {
+  it('zera a diferenca quando a entrada iguala a reserva', () => {
     const estado = { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 }
-    const previa = previaEntrada(estado, 350)
+    const previa = previaEntrada(estado, 150)
 
     expect(previa.diferenca).toBe(0)
     expect(previa.novoSaldo).toBe(350)
@@ -90,12 +91,18 @@ describe('previaEntrada', () => {
 })
 
 describe('entradaValida', () => {
-  it('rejeita entrada menor que o saldo', () => {
-    const estado = { saldo: 350, saldo2: 0, reserva: 0, porcentagem1: 0.3 }
+  it('rejeita entrada menor que a reserva', () => {
+    const estado = { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 }
 
-    expect(entradaValida(estado, 350)).toBe(true)
+    expect(entradaValida(estado, 150)).toBe(true)
     expect(entradaValida(estado, 700)).toBe(true)
-    expect(entradaValida(estado, 349.99)).toBe(false)
+    expect(entradaValida(estado, 149.99)).toBe(false)
+  })
+
+  it('aceita entrada menor que o saldo quando a reserva permite', () => {
+    const estado = { saldo: 900, saldo2: 0, reserva: 150, porcentagem1: 0.3 }
+
+    expect(entradaValida(estado, 200)).toBe(true)
   })
 })
 
@@ -104,12 +111,12 @@ describe('confirmarEntrada', () => {
     const estado = { saldo: 350, saldo2: 100, reserva: 150, porcentagem1: 0.3 }
     const resultado = confirmarEntrada(estado, 700)
 
-    expect(resultado).toEqual({ saldo: 595, saldo2: 100, reserva: 255, porcentagem1: 0.3 })
-    expect(calcularTotal(resultado!)).toBe(695)
+    expect(resultado).toEqual({ saldo: 735, saldo2: 100, reserva: 315, porcentagem1: 0.3 })
+    expect(calcularTotal(resultado!)).toBe(835)
   })
 
-  it('devolve null quando a entrada e invalida', () => {
-    const estado = { saldo: 350, saldo2: 0, reserva: 0, porcentagem1: 0.3 }
+  it('devolve null quando a entrada e menor que a reserva', () => {
+    const estado = { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 }
 
     expect(confirmarEntrada(estado, 100)).toBeNull()
   })
@@ -158,15 +165,23 @@ describe('pagamentos', () => {
     expect(resultado).toEqual({ ...estado, saldo2: 100 })
   })
 
-  it('bloqueia pagamento maior que o disponivel', () => {
-    expect(pagar(estado, 'saldo', 600)).toBeNull()
-    expect(pagar(estado, 'reserva', 256)).toBeNull()
-    expect(pagar(estado, 'saldo2', 201)).toBeNull()
+  it('permite pagar mais que o disponivel, deixando o campo negativo', () => {
+    expect(pagar(estado, 'saldo', 600)).toEqual({ ...estado, saldo: -5 })
+    expect(pagar(estado, 'reserva', 256)).toEqual({ ...estado, reserva: -1 })
+    expect(pagar(estado, 'saldo2', 201)).toEqual({ ...estado, saldo2: -1 })
   })
 
   it('bloqueia pagamento zero ou negativo', () => {
-    expect(pagamentoPossivel(estado, 'saldo', 0)).toBe(false)
+    expect(pagamentoPossivel(0)).toBe(false)
+    expect(pagamentoPossivel(-10)).toBe(false)
     expect(pagar(estado, 'saldo', -10)).toBeNull()
+    expect(pagar(estado, 'saldo', 0)).toBeNull()
+  })
+
+  it('saldoAposPagamento antecipa o valor sem alterar o estado', () => {
+    expect(saldoAposPagamento(estado, 'saldo', 1500)).toBe(-905)
+    expect(saldoAposPagamento(estado, 'reserva', 95)).toBe(160)
+    expect(estado.saldo).toBe(595)
   })
 
   it('aceita pagar exatamente o disponivel, deixando zero', () => {

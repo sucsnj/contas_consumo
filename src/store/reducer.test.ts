@@ -26,7 +26,7 @@ describe('reducerContas', () => {
   })
 
   it('confirmar entrada invalida nao altera nada', () => {
-    const base = comContas({ saldo: 500, saldo2: 0, reserva: 0, porcentagem1: 0.3 })
+    const base = comContas({ saldo: 500, saldo2: 0, reserva: 200, porcentagem1: 0.3 })
     const estado = reducerContas(base, { tipo: 'confirmarEntrada', entrada: 100 })
 
     expect(estado).toBe(base)
@@ -49,11 +49,19 @@ describe('reducerContas', () => {
     expect(estado.contas.saldo + estado.contas.saldo2).toBe(base.contas.saldo + base.contas.saldo2)
   })
 
-  it('bloqueia pagamento maior que o disponivel', () => {
+  it('permite pagamento maior que o disponivel, deixando saldo negativo', () => {
     const base = comContas({ saldo: 100, saldo2: 100, reserva: 100, porcentagem1: 0.3 })
     const estado = reducerContas(base, { tipo: 'pagar', destino: 'saldo', valor: 150 })
 
-    expect(estado).toBe(base)
+    expect(estado.contas.saldo).toBe(-50)
+    expect(estado.movimentos[0].tipo).toBe('pagamento-saldo')
+  })
+
+  it('bloqueia pagamento com valor zero ou negativo', () => {
+    const base = comContas({ saldo: 100, saldo2: 100, reserva: 100, porcentagem1: 0.3 })
+
+    expect(reducerContas(base, { tipo: 'pagar', destino: 'saldo', valor: 0 })).toBe(base)
+    expect(reducerContas(base, { tipo: 'pagar', destino: 'saldo', valor: -10 })).toBe(base)
   })
 
   it('ajusta campo e registra movimento', () => {

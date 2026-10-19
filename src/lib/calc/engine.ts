@@ -77,12 +77,12 @@ export function confirmarEntrada2(estado: ContasState, entrada2: number): Contas
   return { ...estado, saldo2: arredondarMoeda(entrada2) }
 }
 
-export function pagamentoPossivel(
-  estado: ContasState,
-  destino: DestinoPagamento,
-  valor: number,
-): boolean {
-  return valor > 0 && valor <= valorDoCampo(estado, destino)
+export function pagamentoPossivel(valor: number): boolean {
+  return Number.isFinite(valor) && valor > 0
+}
+
+export function saldoAposPagamento(estado: ContasState, destino: DestinoPagamento, valor: number): number {
+  return arredondarMoeda(valorDoCampo(estado, destino) - valor)
 }
 
 export function pagar(
@@ -90,8 +90,8 @@ export function pagar(
   destino: DestinoPagamento,
   valor: number,
 ): ContasState | null {
-  if (!pagamentoPossivel(estado, destino, valor)) return null
-  return { ...estado, [destino]: arredondarMoeda(valorDoCampo(estado, destino) - valor) }
+  if (!pagamentoPossivel(valor)) return null
+  return { ...estado, [destino]: saldoAposPagamento(estado, destino, valor) }
 }
 
 export function ajustar(

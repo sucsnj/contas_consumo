@@ -535,6 +535,19 @@ p {
   margin: 0 0 8px;
 }
 
+.btn-saldo-restante {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+  padding-left: 4px;
+  border-left: 1px solid currentColor;
+  margin-left: 4px;
+}
+
+.btn-negativo .btn-saldo-restante {
+  font-weight: 700;
+  opacity: 1;
+}
+
 /* ---------- Aviso de erro ---------- */
 .aviso-erro {
   font-size: 12px;

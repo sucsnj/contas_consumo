@@ -1,7 +1,11 @@
 # ADR-0002: Entrada como saldo desejado e divisao da diferenca
 
-- Status: aceito
+- Status: aceito (diferenca e validacao substituidas pela ADR-0007)
 - Data: 2026-10-18
+
+> **Vigente:** a regra da diferenca e da validacao foi alterada pela
+> [ADR-0007](0007-entrada-como-alvo-da-reserva.md), que usa a `reserva` como
+> base. Este registro e mantido como historico.
 
 ## Contexto
 

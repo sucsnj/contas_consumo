@@ -1,5 +1,5 @@
 import { CheckCircle2, PiggyBank, Wallet, CreditCard, Landmark } from 'lucide-react'
-import { pagamentoPossivel, previaEntrada } from '../lib/calc/engine'
+import { saldoAposPagamento, previaEntrada } from '../lib/calc/engine'
 import { formatarMoeda, formatarPercentual } from '../lib/calc/format'
 import { useExpressao } from '../hooks/useExpressao'
 import { useContas } from '../store/useContas'
@@ -132,18 +132,18 @@ interface BotaoPagamentoProps {
 
 function BotaoPagamento({ destino, rotulo, icone, valor, onPagar }: BotaoPagamentoProps) {
   const { estado } = useContas()
-  const possivel = pagamentoPossivel(estado.contas, destino, valor)
+  const restante = saldoAposPagamento(estado.contas, destino, valor)
+  const negativo = restante < 0
 
   return (
     <button
       type="button"
-      className="btn btn-danger"
-      disabled={!possivel}
-      title={possivel ? undefined : 'Valor maior que o disponível'}
+      className={negativo ? 'btn btn-danger btn-negativo' : 'btn btn-danger'}
       onClick={() => onPagar(destino)}
     >
       {icone}
-      {rotulo}
+      <span>{rotulo}</span>
+      <span className="btn-saldo-restante">{formatarMoeda(restante)}</span>
     </button>
   )
 }
