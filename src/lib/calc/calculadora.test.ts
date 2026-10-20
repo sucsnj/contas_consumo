@@ -118,9 +118,10 @@ describe('calcular', () => {
 })
 
 describe('calcularResultado', () => {
-  it('arredonda o resultado para cima', () => {
-    expect(calcularResultado('2/3')).toBe(1)
-    expect(calcularResultado('10.1+0.2')).toBe(11)
+  it('limita o resultado a duas casas decimais', () => {
+    expect(calcularResultado('2/3')).toBe(0.67)
+    expect(calcularResultado('1000/3')).toBe(333.33)
+    expect(calcularResultado('10.1+0.2')).toBe(10.3)
     expect(calcularResultado('150+30')).toBe(180)
   })
 

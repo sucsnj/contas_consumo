@@ -65,7 +65,8 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
   A entrada so pode ser confirmada quando `entrada >= reserva`.
 - `entrada2` e o valor **absoluto** do novo `saldo2` (substitui).
 - Previa em tempo real antes de confirmar.
-- Calculadora inline nos inputs (sem keypad), resultado com teto.
+- Calculadora inline nos inputs (sem keypad), resultado com duas casas
+  decimais (nunca arredondado para inteiro).
 - Tres pagamentos a partir do resultado: `pagar_saldo`, `pagar_reserva`,
   `pagar_saldo2`; o valor pode ser **maior que o existente** e o campo
   pode ficar negativo (`saldo = 1000`, pagar `1500` deixa `-500`).
@@ -93,7 +94,8 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
    total_contas = valor_disponivel_conta1 + valor_disponivel_conta2.
 4. Pagamento (conta 1 ou conta 2):
    subtrai do valor_disponivel da conta informada e recalcula o total.
-5. Calculadora: resultado final arredondado com teto (Math.ceil). Decimais permitidos.
+5. Calculadora: resultado final com duas casas decimais, sem arredondamento
+   para inteiro. Decimais permitidos.
 6. Percentual: configuravel (padrao 0.3 / 30%).
 
 ### Mapeamento planilha -> codigo
@@ -260,6 +262,20 @@ src/
   atualizadas; nova entrada `saldoAposPagamento`.
 - Testes: engine.test.ts (24) e reducer.test.ts (13) ajustados para as novas
   regras. Total geral: 76 testes. TSC, lint, testes e build verificados.
+
+### Ajuste de regra - calculadora sem arredondamento para inteiro
+- O teto `Math.ceil` do resultado da calculadora foi removido: `1000/3`
+  deixou de virar 334 e passou a valer `333.33`.
+- `calcularResultado` (src/lib/calc/calculadora.ts) agora reaproveita
+  `arredondarMoeda` do engine, mantendo **duas casas decimais** como unica
+  precisao do app. Nenhum outro arredondamento para inteiro existe em src/.
+- Toda escrita de estado segue passando por `arredondarMoeda` (previa,
+  confirmacao, pagamento, ajuste e total), entao os valores salvos continuam
+  com no maximo duas casas decimais.
+- docs/adr/0004-calculadora-inline.md, docs/adr/0003-pagamentos.md,
+  docs/GLOSSARIO.md e as secoes 4 e 10 deste arquivo atualizados.
+- Testes: calculadora.test.ts ajustado. Total geral: 76 testes.
+  TSC, lint, testes e build verificados.
 
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao

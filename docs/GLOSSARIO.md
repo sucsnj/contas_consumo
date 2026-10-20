@@ -20,7 +20,7 @@ Termos do negocio do app. Os nomes de tela e de codigo derivam daqui.
 | previa | `previa` | Projecao em tempo real, sem alterar os saldos. |
 | confirmar | - | Aplica a previa. Ate la nada muda. |
 | expressao | `expressao` | Texto digitado no input, com numeros, sinais e parenteses. |
-| resultado | `resultado` | Valor da expressao, arredondado **para cima**. |
+| resultado | `resultado` | Valor da expressao com **duas casas decimais**. Nunca arredondado para inteiro. |
 | pagar saldo | `pagar_saldo` | Subtrai do `saldo`. Pode deixar o campo negativo. |
 | pagar reserva | `pagar_reserva` | Subtrai da `reserva`. Pode deixar o campo negativo. Nao altera o `total`. |
 | pagar saldo2 | `pagar_saldo2` | Subtrai do `saldo2`. Pode deixar o campo negativo. |

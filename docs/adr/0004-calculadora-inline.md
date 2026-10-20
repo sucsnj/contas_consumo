@@ -19,7 +19,8 @@ a calculadora:
 - um separador decimal por numero, parenteses balanceados, `(` depois de
   numero vira `*(`, limite de 40 caracteres;
 - o resultado aparece abaixo do campo em tempo real (debounce de 300ms);
-- o resultado e arredondado **para cima** (`Math.ceil`);
+- o resultado e limitado a **duas casas decimais**, sem arredondar para
+  inteiro (`calcularResultado` reaproveita `arredondarMoeda` do engine);
 - `Enter` confirma.
 
 A mesma coisa vale para o campo da `entrada2`.

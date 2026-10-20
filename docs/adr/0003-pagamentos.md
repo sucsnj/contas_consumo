@@ -25,7 +25,7 @@ Enquanto houver um resultado valido na expressao, tres botoes aparecem:
 
 Regras:
 
-- o valor do pagamento vem do resultado da expressao (arredondado para cima);
+- o valor do pagamento vem do resultado da expressao (duas casas decimais);
 - pagamento **nao pode** deixar `saldo`, `reserva` ou `saldo2` negativo: se o
   valor exceder o saldo disponivel, o botao fica desabilitado com aviso;
 - pagamento nao altera `total` diretamente: `total` e recalculado como

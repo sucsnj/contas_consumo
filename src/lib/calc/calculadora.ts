@@ -1,3 +1,5 @@
+import { arredondarMoeda } from './engine'
+
 const REGEX_TECLA_VALIDA = /^[0-9+\-*/().,]$/
 const REGEX_OPERADOR = /^[+\-*/]$/
 const REGEX_NUMERO = /^[0-9]$/
@@ -183,5 +185,5 @@ export function calcular(expressao: string): number | null {
 
 export function calcularResultado(expressao: string): number | null {
   const valor = calcular(expressao)
-  return valor === null ? null : Math.ceil(valor)
+  return valor === null ? null : arredondarMoeda(valor)
 }
