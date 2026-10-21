@@ -1,4 +1,14 @@
-import { ajustar as ajustarValor, arredondarMoeda, calcularTotal, confirmarEntrada, confirmarEntrada2, pagar } from '../lib/calc/engine'
+import {
+  ajustar as ajustarValor,
+  arredondarMoeda,
+  calcularTotal,
+  confirmarEntrada,
+  confirmarEntrada2,
+  criarEstadoInicial,
+  devolver,
+  pagar,
+  valorDevolucao,
+} from '../lib/calc/engine'
 import { criarId } from '../lib/id'
 import type {
   CampoAjustavel,
@@ -22,12 +32,13 @@ export type Acao =
   | { tipo: 'confirmarEntrada'; entrada: number }
   | { tipo: 'confirmarEntrada2'; entrada2: number }
   | { tipo: 'pagar'; destino: DestinoPagamento; valor: number }
+  | { tipo: 'devolver' }
   | { tipo: 'ajustar'; campo: CampoAjustavel; valor: number }
   | { tipo: 'reverter'; estado: ContasState }
   | { tipo: 'reiniciar' }
 
 export const ESTADO_INICIAL: AppState = {
-  contas: { saldo: 0, saldo2: 0, reserva: 0, porcentagem1: 0.3 },
+  contas: criarEstadoInicial(),
   movimentos: [],
   estados: [],
 }
@@ -100,6 +111,13 @@ export function reducerContas(estado: AppState, acao: Acao): AppState {
       return comOperacao(estado, `pagamento-${acao.destino}`, acao.destino, acao.valor, depois, rotulo)
     }
 
+    case 'devolver': {
+      const depois = devolver(estado.contas)
+      if (depois === null) return estado
+      const valor = valorDevolucao(estado.contas)
+      return comOperacao(estado, 'devolucao', null, valor, depois, 'Devolução para a reserva')
+    }
+
     case 'ajustar': {
       const depois = ajustarValor(estado.contas, acao.campo, acao.valor)
       if (depois === null) return estado
@@ -109,9 +127,9 @@ export function reducerContas(estado: AppState, acao: Acao): AppState {
     case 'reverter':
       return comReversao(estado, acao.estado)
 
-case 'reiniciar':
+    case 'reiniciar':
       return {
-        contas: { saldo: 0, saldo2: 0, reserva: 0, porcentagem1: estado.contas.porcentagem1 },
+        contas: criarEstadoInicial(estado.contas.porcentagem1),
         movimentos: [],
         estados: [],
       }

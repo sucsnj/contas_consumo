@@ -26,7 +26,8 @@ export function HistoricoEstados() {
                     {new Date(registro.em).toLocaleString('pt-BR')} - saldo{' '}
                     {formatarMoeda(registro.estado.saldo)} - reserva{' '}
                     {formatarMoeda(registro.estado.reserva)} - saldo2{' '}
-                    {formatarMoeda(registro.estado.saldo2)}
+                    {formatarMoeda(registro.estado.saldo2)} - emprestado{' '}
+                    {formatarMoeda(registro.estado.emprestado)}
                   </span>
                 </span>
               </span>

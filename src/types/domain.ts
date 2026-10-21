@@ -3,6 +3,7 @@ export interface ContasState {
   saldo2: number
   reserva: number
   porcentagem1: number
+  emprestado: number
 }
 
 export type CampoAjustavel = 'saldo' | 'saldo2' | 'reserva' | 'porcentagem1'
@@ -31,6 +32,7 @@ export type MovimentoTipo =
   | 'pagamento-saldo'
   | 'pagamento-reserva'
   | 'pagamento-saldo2'
+  | 'devolucao'
   | 'ajuste'
   | 'reversao'
 

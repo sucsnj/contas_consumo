@@ -21,10 +21,14 @@ Termos do negocio do app. Os nomes de tela e de codigo derivam daqui.
 | confirmar | - | Aplica a previa. Ate la nada muda. |
 | expressao | `expressao` | Texto digitado no input, com numeros, sinais e parenteses. |
 | resultado | `resultado` | Valor da expressao com **duas casas decimais**. Nunca arredondado para inteiro. |
-| pagar saldo | `pagar_saldo` | Subtrai do `saldo`. Pode deixar o campo negativo. |
+| pagar saldo | `pagar_saldo` | Subtrai do `saldo`. Se faltar, usa a `reserva` e registra a divida em `emprestado`. Nunca deixa `saldo` negativo. |
 | pagar reserva | `pagar_reserva` | Subtrai da `reserva`. Pode deixar o campo negativo. Nao altera o `total`. |
 | pagar saldo2 | `pagar_saldo2` | Subtrai do `saldo2`. Pode deixar o campo negativo. |
-| saldo apos pagamento | `saldoAposPagamento` | Valor resultante do campo depois de pagar: `valorDoCampo - valor`. |
+| emprestado | `emprestado` | Divida da conta 1 com a reserva. Sempre `<= 0`; `-50` significa que a reserva cobriu 50 do saldo. Nao entra no `total`. |
+| emprestimo | `emprestimo` | Parte do pagamento do saldo que excede o saldo: `min(0, saldo - valor)`, sempre `<= 0`. |
+| devolucao | `devolucao` | Cede `min(saldo, -emprestado)` do saldo para a reserva, reduzindo o `emprestado` ate zero. Parcial quando o saldo nao cobre. |
+| reserva necessaria | `reservaNecessaria` | Quanto da reserva um pagamento do saldo vai consumir: `max(0, valor - saldo)`. |
+| saldo apos pagamento | `saldoAposPagamento` | Valor resultante do campo depois de pagar (para o saldo nunca fica abaixo de zero). |
 | ajuste | - | Edicao livre de `saldo`, `saldo2`, `reserva` ou `porcentagem1`, sem passar pelo calculo principal. |
 | estado (historico) | - | Snapshot dos saldos gravado a cada operacao, com data e hora. Maximo de 3. |
 | desfazer | - | Reverter para o estado anterior. Botao flutuante visivel por 5 segundos apos qualquer operacao. |

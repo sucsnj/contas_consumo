@@ -1,6 +1,7 @@
 # ADR-0008: Pagamento pode exceder o saldo e ficar negativo
 
-- Status: aceito
+- Status: substituido pela ADR-0010 para o pagamento do saldo; vale para
+  reserva e saldo2
 - Data: 2026-10-18
 - Substitui: a restricao de negativo da ADR-0003
 
@@ -45,3 +46,9 @@ Regras:
   simplifica `pagamentoPossivel` para uma checagem de valor.
 - Historico, desfazer e gravacao de movimento nao mudam: a operacao segue
   registrando `pagamento-<destino>` com o valor pago.
+
+## Atualizacao (ADR-0010)
+
+Para o **saldo**, o excedente deixou de virar negativo: ele sai da reserva e e
+registrado em `emprestado`, com o botao "Devolucao" para quitar a divida.
+`pagar reserva` e `pagar saldo2` seguem o descrito acima.

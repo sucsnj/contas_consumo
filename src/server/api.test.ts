@@ -95,7 +95,7 @@ describe('API HTTP', () => {
   })
 
   it('grava e le o estado', async () => {
-    const estado = { saldo: 10, saldo2: 20, reserva: 30, porcentagem1: 0.4 }
+    const estado = { saldo: 10, saldo2: 20, reserva: 30, porcentagem1: 0.4, emprestado: -5 }
     const gravar = await fetch(`${contexto.base}/api/estado`, {
       method: 'PUT',
       headers: autorizado({ 'Content-Type': 'application/json' }),

@@ -126,6 +126,12 @@ export function DashboardPage() {
             formatar={formatarPercentual}
             tom="cinza"
           />
+          <div className="valor-ajustavel">
+            <span className="resumo-rotulo">Emprestado</span>
+            <p className={`resumo-valor valor-${tomSituacao(contas.emprestado)}`}>
+              {formatarMoeda(contas.emprestado)}
+            </p>
+          </div>
         </section>
 
         <section className="grid-2">

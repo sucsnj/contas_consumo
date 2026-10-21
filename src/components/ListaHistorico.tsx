@@ -1,4 +1,4 @@
-import { ArrowDownCircle, ArrowUpCircle, Percent, RotateCcw, Sliders } from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, HandCoins, Percent, RotateCcw, Sliders } from 'lucide-react'
 import { formatarMoeda } from '../lib/calc/format'
 import type { Movimento, MovimentoTipo } from '../types/domain'
 
@@ -8,6 +8,7 @@ const ROTULO: Record<MovimentoTipo, string> = {
   'pagamento-saldo': 'Pagamento do saldo',
   'pagamento-reserva': 'Pagamento da reserva',
   'pagamento-saldo2': 'Pagamento do saldo2',
+  devolucao: 'Devolução para a reserva',
   ajuste: 'Ajuste manual',
   reversao: 'Reversão',
 }
@@ -21,6 +22,8 @@ function IconeMovimento({ tipo }: { tipo: MovimentoTipo }) {
     case 'pagamento-reserva':
     case 'pagamento-saldo2':
       return <ArrowUpCircle size={18} />
+    case 'devolucao':
+      return <HandCoins size={18} />
     case 'ajuste':
       return <Sliders size={18} />
     case 'reversao':

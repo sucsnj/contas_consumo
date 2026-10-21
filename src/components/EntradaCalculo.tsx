@@ -1,5 +1,13 @@
-import { CheckCircle2, PiggyBank, Wallet, CreditCard, Landmark } from 'lucide-react'
-import { saldoAposPagamento, previaEntrada } from '../lib/calc/engine'
+import { CheckCircle2, CreditCard, HandCoins, Landmark, PiggyBank, Wallet } from 'lucide-react'
+import {
+  arredondarMoeda,
+  devolucaoPossivel,
+  pagamentoValido,
+  previaEntrada,
+  reservaNecessaria,
+  saldoAposPagamento,
+  valorDevolucao,
+} from '../lib/calc/engine'
 import { formatarMoeda, formatarPercentual } from '../lib/calc/format'
 import { useExpressao } from '../hooks/useExpressao'
 import { useContas } from '../store/useContas'
@@ -14,6 +22,14 @@ export function EntradaCalculo() {
   const entradaValida = resultado !== null && resultado >= contas.reserva
   const previa = resultado !== null && entradaValida ? previaEntrada(contas, resultado) : null
 
+  const reservaParaSaldo = resultado !== null ? reservaNecessaria(contas, resultado) : 0
+  const usaReserva = resultado !== null && reservaParaSaldo > 0
+  const saldoPagavel = resultado !== null && pagamentoValido(contas, 'saldo', resultado)
+  const emprestadoPrevisto = arredondarMoeda(contas.emprestado - reservaParaSaldo)
+
+  const devolver = valorDevolucao(contas)
+  const podeDevolver = devolucaoPossivel(contas)
+
   function confirmar() {
     if (!entradaValida || resultado === null) return
     despachar({ tipo: 'confirmarEntrada', entrada: resultado })
@@ -24,6 +40,11 @@ export function EntradaCalculo() {
     if (resultado === null) return
     despachar({ tipo: 'pagar', destino, valor: resultado })
     limpar()
+  }
+
+  function confirmarDevolucao() {
+    if (!podeDevolver) return
+    despachar({ tipo: 'devolver' })
   }
 
   const abaixoDoSaldo = resultado !== null && resultado < contas.reserva
@@ -100,6 +121,7 @@ export function EntradaCalculo() {
               icone={<Landmark size={16} />}
               valor={resultado}
               onPagar={pagarDestino}
+              desabilitado={!saldoPagavel}
             />
             <BotaoPagamento
               destino="reserva"
@@ -116,8 +138,47 @@ export function EntradaCalculo() {
               onPagar={pagarDestino}
             />
           </div>
+          {usaReserva ? (
+            saldoPagavel ? (
+              <p className="campo-dica">
+                A reserva cobre {formatarMoeda(reservaParaSaldo)} e fica com{' '}
+                {formatarMoeda(contas.reserva - reservaParaSaldo)}. Emprestado:{' '}
+                {formatarMoeda(emprestadoPrevisto)}.
+              </p>
+            ) : (
+              <p className="aviso-erro">
+                A reserva não cobre {formatarMoeda(reservaParaSaldo)} (tem{' '}
+                {formatarMoeda(contas.reserva)}). O pagamento do saldo não será realizado.
+              </p>
+            )
+          ) : null}
         </div>
       ) : null}
+
+      <div className="pagamentos-rapidos">
+        <p className="pagamentos-rapidos-titulo">Empréstimo da reserva</p>
+        <div className="acoes-conta">
+          <button
+            type="button"
+            className="btn btn-success"
+            disabled={!podeDevolver}
+            onClick={confirmarDevolucao}
+          >
+            <HandCoins size={16} />
+            <span>Devolução</span>
+            <span className="btn-saldo-restante">{formatarMoeda(devolver)}</span>
+          </button>
+        </div>
+        <p className={contas.emprestado >= 0 || podeDevolver ? 'campo-dica' : 'aviso-erro'}>
+          {contas.emprestado >= 0
+            ? 'Sem empréstimo a devolver.'
+            : podeDevolver
+              ? `Devolve ${formatarMoeda(devolver)} do saldo para a reserva. Emprestado fica com ${formatarMoeda(
+                  arredondarMoeda(contas.emprestado + devolver),
+                )}.`
+              : 'Saldo zerado: não há valor para devolver.'}
+        </p>
+      </div>
     </section>
   )
 }
@@ -128,17 +189,27 @@ interface BotaoPagamentoProps {
   icone: React.ReactNode
   valor: number
   onPagar: (destino: DestinoPagamento) => void
+  desabilitado?: boolean
 }
 
-function BotaoPagamento({ destino, rotulo, icone, valor, onPagar }: BotaoPagamentoProps) {
+function BotaoPagamento({
+  destino,
+  rotulo,
+  icone,
+  valor,
+  onPagar,
+  desabilitado = false,
+}: BotaoPagamentoProps) {
   const { estado } = useContas()
   const restante = saldoAposPagamento(estado.contas, destino, valor)
-  const negativo = restante < 0
+  const usaReserva = destino === 'saldo' && valor > estado.contas.saldo
+  const negativo = restante < 0 || usaReserva
 
   return (
     <button
       type="button"
       className={negativo ? 'btn btn-danger btn-negativo' : 'btn btn-danger'}
+      disabled={desabilitado}
       onClick={() => onPagar(destino)}
     >
       {icone}

@@ -9,17 +9,31 @@ import {
 
 describe('validarContas', () => {
   it('aceita o estado completo', () => {
+    expect(
+      validarContas({ saldo: 10, saldo2: 20, reserva: 30, porcentagem1: 0.4, emprestado: -5 }),
+    ).toEqual({
+      saldo: 10,
+      saldo2: 20,
+      reserva: 30,
+      porcentagem1: 0.4,
+      emprestado: -5,
+    })
+  })
+
+  it('assume emprestado zero em dados antigos', () => {
     expect(validarContas({ saldo: 10, saldo2: 20, reserva: 30, porcentagem1: 0.4 })).toEqual({
       saldo: 10,
       saldo2: 20,
       reserva: 30,
       porcentagem1: 0.4,
+      emprestado: 0,
     })
   })
 
   it('rejeita campos ausentes ou invalidos', () => {
     expect(validarContas({ saldo: 'dez' })).toBeNull()
     expect(validarContas({ saldo: 1, saldo2: 2, reserva: 3 })).toBeNull()
+    expect(validarContas({ saldo: 1, saldo2: 2, reserva: 3, porcentagem1: 0.3, emprestado: 'x' })).toBeNull()
     expect(validarContas(null)).toBeNull()
   })
 })
@@ -40,6 +54,7 @@ describe('migrarContasAntigas', () => {
       saldo2: 200,
       reserva: 350,
       porcentagem1: 0.3,
+      emprestado: 0,
     })
   })
 
@@ -67,6 +82,7 @@ describe('validarMovimento', () => {
 
   it('aceita campo nulo e rejeita tipo desconhecido', () => {
     expect(validarMovimento({ ...movimento, campo: null })).not.toBeNull()
+    expect(validarMovimento({ ...movimento, tipo: 'devolucao', campo: null })).not.toBeNull()
     expect(validarMovimento({ ...movimento, tipo: 'inexistente' })).toBeNull()
   })
 

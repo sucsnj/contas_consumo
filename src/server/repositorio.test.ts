@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { criarEstadoInicial } from '../lib/calc/engine.ts'
 import { abrirRepositorio } from './repositorio.ts'
 import type { Repositorio } from './repositorio.ts'
-import type { EstadoHistorico, Movimento } from '../types/domain.ts'
+import type { ContasState, EstadoHistorico, Movimento } from '../types/domain.ts'
 
 function movimento(id: string): Movimento {
   return {
@@ -39,8 +39,26 @@ describe('repositorio SQLite', () => {
     repositorio.salvarEstado(criarEstadoInicial())
     expect(repositorio.lerEstado()).toEqual(criarEstadoInicial())
 
-    repositorio.salvarEstado({ saldo: 10, saldo2: 20, reserva: 30, porcentagem1: 0.4 })
-    expect(repositorio.lerEstado()).toEqual({ saldo: 10, saldo2: 20, reserva: 30, porcentagem1: 0.4 })
+    const estado = { saldo: 10, saldo2: 20, reserva: 30, porcentagem1: 0.4, emprestado: -50 }
+    repositorio.salvarEstado(estado)
+    expect(repositorio.lerEstado()).toEqual(estado)
+  })
+
+  it('completa com emprestado zero os movimentos gravados antes da coluna', () => {
+    const legado = { saldo: 1, saldo2: 2, reserva: 3, porcentagem1: 0.3 }
+    repositorio.adicionarMovimento({
+      ...movimento('antigo'),
+      antes: legado as ContasState,
+      depois: legado as ContasState,
+    })
+
+    expect(repositorio.lerMovimentos()[0].antes).toEqual({
+      saldo: 1,
+      saldo2: 2,
+      reserva: 3,
+      porcentagem1: 0.3,
+      emprestado: 0,
+    })
   })
 
   it('substitui a lista de estados de backup', () => {

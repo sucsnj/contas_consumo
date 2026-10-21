@@ -99,9 +99,16 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
    total_contas = valor_disponivel_conta1 + valor_disponivel_conta2.
 4. Pagamento (conta 1 ou conta 2):
    subtrai do valor_disponivel da conta informada e recalcula o total.
-5. Calculadora: resultado final com duas casas decimais, sem arredondamento
+   No pagamento do saldo da conta 1, se o valor passar do saldo, a reserva
+   cobre a diferenca e essa diferenca vira divida (emprestado):
+   emprestimo = min(0, saldo - valor); saldo = max(0, saldo - valor);
+   reserva = reserva + emprestimo; emprestado = emprestado + emprestimo.
+   Se a reserva nao cobrir, o pagamento nao e realizado (aviso em vermelho).
+5. Devolucao: com emprestado < 0, cede min(saldo, -emprestado) do saldo para
+   a reserva e reduz o emprestado ate zero (parcial quando o saldo nao cobre).
+6. Calculadora: resultado final com duas casas decimais, sem arredondamento
    para inteiro. Decimais permitidos.
-6. Percentual: configuravel (padrao 0.3 / 30%).
+7. Percentual: configuravel (padrao 0.3 / 30%).
 
 ### Mapeamento planilha -> codigo
 
@@ -113,6 +120,7 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
 | valor_disponivel_conta2     | contas.valorDisponivelConta2             |
 | total_contas                | contas.totalContas                       |
 | percentual                  | contas.percentual                        |
+| (novo) divida com a reserva | contas.emprestado                        |
 | valor_novo_conta1/2         | previa.valor (entrada em digitacao)       |
 | valor_diferenca             | previa.diferenca                         |
 | valor_porcentagem1 / 2      | previa.valorPorcentagem1 / 2             |
@@ -128,6 +136,8 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
 - percentual = 0.3 (30% por padrao, configuravel).
 - valor_porcentagem1 = valor_diferenca * percentual.
 - valor_porcentagem2 = valor_diferenca - valor_porcentagem1.
+- emprestado = soma dos excedentes de pagamentos do saldo cobertos pela
+  reserva (negativo ate a devolucao).
 
 ## 6. Estrutura de codigo
 
@@ -349,12 +359,39 @@ src/
 - Testes: token.test.ts cobre falha de rede e 500 do proxy; api.test.ts cobre
   JSON invalido em /api/sessao (antes caia em 500). Total: 93 testes.
 
+### Regra - Emprestado e devolucao (ADR-0010)
+- Novo campo `emprestado` em `ContasState`: divida da conta 1 com a reserva,
+  sempre `<= 0`, fora do `total` e sem edicao manual.
+- `pagar saldo` acima do saldo consome a reserva e registra o excedente em
+  `emprestado` (ex.: 150/500/0, pagar 200 -> 0/450/-50). O saldo nunca fica
+  negativo por pagamento.
+- `pagamentoValido` bloqueia quando a reserva nao cobre o excedente; a UI
+  desabilita o botao e mostra em vermelho quanto falta.
+- Botao "Devolucao" (visivel apenas com `emprestado < 0`) cede
+  `min(saldo, -emprestado)` do saldo para a reserva, com devolucao parcial
+  quando o saldo nao cobre.
+- src/lib/calc/engine.ts: `reservaNecessaria`, `pagamentoValido`,
+  `saldoAposPagamento` (saldo limitado a zero), `pagar`, `valorDevolucao`,
+  `devolucaoPossivel` e `devolver`. `arredondarMoeda` normaliza `-0`.
+- Store: acao `devolver` e tipo de movimento `devolucao`; ESTADO_INICIAL e
+  reiniciar agora usam `criarEstadoInicial` (sem duplicar o estado vazio).
+- UI: card "Emprestado" no resumo, icone/rotulo do movimento, emprestado no
+  historico de estados e aviso da reserva no pagamento do saldo.
+- Persistencia: coluna `emprestado` em `estado` e `estados_historico`, com
+  `ALTER TABLE` para bancos existentes; movimentos antigos (JSON sem o campo)
+  sao lidos como zero. `validarContas` assume zero quando o campo falta.
+- docs/adr/0010-emprestado-e-devolucao.md criado; ADR-0008 marcada como
+  substituida para o saldo; GLOSSARIO atualizado.
+- Testes: engine, reducer, validacao, repositorio, api e dashboard cobrem os
+  novos fluxos. Total: 110 testes.
+
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
   (ou Enter) confirma e zera o campo.
 - Ao reiniciar, o historico persistido tambem e limpo.
-- Pagamento subtrai do destino escolhido e pode deixar o campo negativo;
-  pagar a reserva nao altera o `total` (que e sempre `saldo + saldo2`).
+- `pagar reserva` e `pagar saldo2` ainda podem deixar o campo negativo;
+  `pagar saldo` nunca deixa: o excedente vira `emprestado` e sai da reserva.
+- O `total` e sempre `saldo + saldo2`; `reserva` e `emprestado` ficam fora.
 - A calculadora nunca usa eval/Function: o parser e proprio (shunting-yard).
 - A autenticacao e validada no servidor (ADR-0009); o token do `.env` nunca
   vai para o bundle. Para chamadas manuais, use `cabecalhoAuthorization()`.

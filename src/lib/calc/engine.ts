@@ -9,7 +9,8 @@ import type {
 export const PORCENTAGEM_PADRAO = 0.3
 
 export function arredondarMoeda(valor: number): number {
-  return Math.round((valor + Number.EPSILON) * 100) / 100
+  const arredondado = Math.round((valor + Number.EPSILON) * 100) / 100
+  return arredondado === 0 ? 0 : arredondado
 }
 
 export function criarEstadoInicial(porcentagem1: number = PORCENTAGEM_PADRAO): ContasState {
@@ -18,6 +19,7 @@ export function criarEstadoInicial(porcentagem1: number = PORCENTAGEM_PADRAO): C
     saldo2: 0,
     reserva: 0,
     porcentagem1,
+    emprestado: 0,
   }
 }
 
@@ -81,7 +83,22 @@ export function pagamentoPossivel(valor: number): boolean {
   return Number.isFinite(valor) && valor > 0
 }
 
+export function reservaNecessaria(estado: ContasState, valor: number): number {
+  return arredondarMoeda(Math.max(0, valor - estado.saldo))
+}
+
+export function pagamentoValido(
+  estado: ContasState,
+  destino: DestinoPagamento,
+  valor: number,
+): boolean {
+  if (!pagamentoPossivel(valor)) return false
+  if (destino !== 'saldo') return true
+  return arredondarMoeda(estado.reserva - reservaNecessaria(estado, valor)) >= 0
+}
+
 export function saldoAposPagamento(estado: ContasState, destino: DestinoPagamento, valor: number): number {
+  if (destino === 'saldo') return arredondarMoeda(Math.max(0, estado.saldo - valor))
   return arredondarMoeda(valorDoCampo(estado, destino) - valor)
 }
 
@@ -90,8 +107,48 @@ export function pagar(
   destino: DestinoPagamento,
   valor: number,
 ): ContasState | null {
-  if (!pagamentoPossivel(valor)) return null
-  return { ...estado, [destino]: saldoAposPagamento(estado, destino, valor) }
+  if (!pagamentoValido(estado, destino, valor)) return null
+
+  if (destino !== 'saldo') {
+    return { ...estado, [destino]: arredondarMoeda(valorDoCampo(estado, destino) - valor) }
+  }
+
+  if (valor <= estado.saldo) {
+    return { ...estado, saldo: arredondarMoeda(estado.saldo - valor) }
+  }
+
+  const emprestimo = arredondarMoeda(estado.saldo - valor)
+
+  return {
+    ...estado,
+    saldo: 0,
+    reserva: arredondarMoeda(estado.reserva + emprestimo),
+    emprestado: arredondarMoeda(estado.emprestado + emprestimo),
+  }
+}
+
+export function valorDevolucao(estado: ContasState): number {
+  if (estado.emprestado >= 0 || estado.saldo <= 0) return 0
+  return arredondarMoeda(Math.min(estado.saldo, -estado.emprestado))
+}
+
+export function devolucaoPossivel(estado: ContasState): boolean {
+  return valorDevolucao(estado) > 0
+}
+
+export function devolver(estado: ContasState): ContasState | null {
+  const valor = valorDevolucao(estado)
+  if (valor <= 0) return null
+
+  const novaReserva = arredondarMoeda(estado.reserva + valor)
+  if (novaReserva < 0) return null
+
+  return {
+    ...estado,
+    saldo: arredondarMoeda(estado.saldo - valor),
+    reserva: novaReserva,
+    emprestado: arredondarMoeda(estado.emprestado + valor),
+  }
 }
 
 export function ajustar(

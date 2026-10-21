@@ -1,4 +1,6 @@
 import { DatabaseSync } from 'node:sqlite'
+import { criarEstadoInicial } from '../lib/calc/engine.ts'
+import { validarContas } from '../lib/db/validacao.ts'
 import type { ContasState, EstadoHistorico, Movimento, MovimentoTipo } from '../types/domain.ts'
 
 const ESQUEMA = `
@@ -7,6 +9,7 @@ CREATE TABLE IF NOT EXISTS estado (
   saldo REAL NOT NULL,
   saldo2 REAL NOT NULL,
   reserva REAL NOT NULL,
+  emprestado REAL NOT NULL DEFAULT 0,
   porcentagem1 REAL NOT NULL,
   atualizado_em TEXT NOT NULL
 );
@@ -18,6 +21,7 @@ CREATE TABLE IF NOT EXISTS estados_historico (
   saldo REAL NOT NULL,
   saldo2 REAL NOT NULL,
   reserva REAL NOT NULL,
+  emprestado REAL NOT NULL DEFAULT 0,
   porcentagem1 REAL NOT NULL
 );
 
@@ -53,7 +57,24 @@ function lerContas(linha: Record<string, unknown>): ContasState {
     saldo2: Number(linha.saldo2),
     reserva: Number(linha.reserva),
     porcentagem1: Number(linha.porcentagem1),
+    emprestado: Number(linha.emprestado),
   }
+}
+
+function lerContasJson(bruto: string): ContasState {
+  try {
+    return validarContas(JSON.parse(bruto)) ?? criarEstadoInicial()
+  } catch {
+    return criarEstadoInicial()
+  }
+}
+
+function garantirColunaEmprestado(banco: DatabaseSync, tabela: string): void {
+  const colunas = banco.prepare(`PRAGMA table_info(${tabela})`).all() as Array<{ name: string }>
+
+  if (colunas.some((coluna) => coluna.name === 'emprestado')) return
+
+  banco.exec(`ALTER TABLE ${tabela} ADD COLUMN emprestado REAL NOT NULL DEFAULT 0`)
 }
 
 export function abrirRepositorio(caminho: string): Repositorio {
@@ -63,25 +84,31 @@ export function abrirRepositorio(caminho: string): Repositorio {
   banco.exec('PRAGMA journal_mode = DELETE')
   banco.exec('PRAGMA synchronous = FULL')
   banco.exec(ESQUEMA)
+  garantirColunaEmprestado(banco, 'estado')
+  garantirColunaEmprestado(banco, 'estados_historico')
 
-  const consultarEstado = banco.prepare('SELECT saldo, saldo2, reserva, porcentagem1 FROM estado WHERE id = 1')
+  const consultarEstado = banco.prepare(
+    'SELECT saldo, saldo2, reserva, emprestado, porcentagem1 FROM estado WHERE id = 1',
+  )
   const gravarEstado = banco.prepare(
-    `INSERT INTO estado (id, saldo, saldo2, reserva, porcentagem1, atualizado_em)
-     VALUES (1, ?, ?, ?, ?, ?)
+    `INSERT INTO estado (id, saldo, saldo2, reserva, emprestado, porcentagem1, atualizado_em)
+     VALUES (1, ?, ?, ?, ?, ?, ?)
      ON CONFLICT (id) DO UPDATE SET
        saldo = excluded.saldo,
        saldo2 = excluded.saldo2,
        reserva = excluded.reserva,
+       emprestado = excluded.emprestado,
        porcentagem1 = excluded.porcentagem1,
        atualizado_em = excluded.atualizado_em`,
   )
 
   const consultarEstados = banco.prepare(
-    'SELECT id, em, rotulo, saldo, saldo2, reserva, porcentagem1 FROM estados_historico ORDER BY rowid',
+    'SELECT id, em, rotulo, saldo, saldo2, reserva, emprestado, porcentagem1 FROM estados_historico ORDER BY rowid',
   )
   const limparEstados = banco.prepare('DELETE FROM estados_historico')
   const gravarEstadoHistorico = banco.prepare(
-    'INSERT INTO estados_historico (id, em, rotulo, saldo, saldo2, reserva, porcentagem1) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    `INSERT INTO estados_historico (id, em, rotulo, saldo, saldo2, reserva, emprestado, porcentagem1)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   )
 
   const consultarMovimentos = banco.prepare(
@@ -114,6 +141,7 @@ export function abrirRepositorio(caminho: string): Repositorio {
         estado.saldo,
         estado.saldo2,
         estado.reserva,
+        estado.emprestado,
         estado.porcentagem1,
         new Date().toISOString(),
       )
@@ -139,6 +167,7 @@ export function abrirRepositorio(caminho: string): Repositorio {
             registro.estado.saldo,
             registro.estado.saldo2,
             registro.estado.reserva,
+            registro.estado.emprestado,
             registro.estado.porcentagem1,
           )
         }
@@ -152,8 +181,8 @@ export function abrirRepositorio(caminho: string): Repositorio {
         campo: linha.campo === null ? null : (texto(linha.campo) as Movimento['campo']),
         valor: Number(linha.valor),
         em: texto(linha.em),
-        antes: JSON.parse(texto(linha.antes)) as ContasState,
-        depois: JSON.parse(texto(linha.depois)) as ContasState,
+        antes: lerContasJson(texto(linha.antes)),
+        depois: lerContasJson(texto(linha.depois)),
       }))
     },
 

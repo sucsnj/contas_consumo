@@ -39,13 +39,13 @@ const movimento: Movimento = {
   valor: 500,
   em: '2026-01-01T12:00:00.000Z',
   antes: criarEstadoInicial(),
-  depois: { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 },
+  depois: { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3, emprestado: 0 },
 }
 
 describe('DashboardPage', () => {
   it('mostra as duas contas e o total', () => {
     const html = renderizarCom({
-      contas: { saldo: 595, saldo2: 200, reserva: 255, porcentagem1: 0.3 },
+      contas: { saldo: 595, saldo2: 200, reserva: 255, porcentagem1: 0.3, emprestado: 0 },
       movimentos: [movimento],
       estados: [],
     })
@@ -58,7 +58,7 @@ describe('DashboardPage', () => {
 
   it('mostra a situacao negativa do saldo2', () => {
     const html = renderizarCom({
-      contas: { saldo: 100, saldo2: -200, reserva: 0, porcentagem1: 0.3 },
+      contas: { saldo: 100, saldo2: -200, reserva: 0, porcentagem1: 0.3, emprestado: 0 },
       movimentos: [],
       estados: [],
     })
@@ -69,7 +69,7 @@ describe('DashboardPage', () => {
 
   it('mostra o historico com o movimento registrado', () => {
     const html = renderizarCom({
-      contas: { saldo: 0, saldo2: 0, reserva: 0, porcentagem1: 0.3 },
+      contas: { saldo: 0, saldo2: 0, reserva: 0, porcentagem1: 0.3, emprestado: 0 },
       movimentos: [movimento],
       estados: [],
     })
@@ -81,14 +81,14 @@ describe('DashboardPage', () => {
 
   it('mostra os estados de backup', () => {
     const html = renderizarCom({
-      contas: { saldo: 0, saldo2: 0, reserva: 0, porcentagem1: 0.3 },
+      contas: { saldo: 0, saldo2: 0, reserva: 0, porcentagem1: 0.3, emprestado: 0 },
       movimentos: [],
       estados: [
         {
           id: 'e1',
           em: '2026-01-01T12:00:00.000Z',
           rotulo: 'Entrada na conta 1',
-          estado: { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 },
+          estado: { saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3, emprestado: 0 },
         },
       ],
     })
@@ -96,6 +96,27 @@ describe('DashboardPage', () => {
     expect(html).toContain('Histórico de estados')
     expect(html).toContain('Entrada na conta 1')
     expect(html).toContain('Reverter')
+  })
+
+  it('mostra o emprestado e permite devolucao quando ha divida com a reserva', () => {
+    const html = renderizarCom({
+      contas: { saldo: 300, saldo2: 0, reserva: 200, porcentagem1: 0.3, emprestado: -70 },
+      movimentos: [],
+      estados: [],
+    })
+
+    expect(html).toContain('Emprestado')
+    expect(html).toContain('-R$ 70,00')
+    expect(html).toContain('Devolução')
+    expect(html).toContain('Devolve R$ 70,00')
+  })
+
+  it('deixa a devolucao desabilitada sem emprestado negativo', () => {
+    const html = renderizarCom({ contas: criarEstadoInicial(), movimentos: [], estados: [] })
+
+    expect(html).toContain('Emprestado')
+    expect(html).toContain('Devolução')
+    expect(html).toContain('Sem empréstimo a devolver.')
   })
 
   it('mostra o indicador de autenticacao e a acao de sair', () => {

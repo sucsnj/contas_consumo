@@ -8,6 +8,7 @@ const TIPOS_MOVIMENTO: readonly MovimentoTipo[] = [
   'pagamento-saldo',
   'pagamento-reserva',
   'pagamento-saldo2',
+  'devolucao',
   'ajuste',
   'reversao',
 ]
@@ -36,12 +37,19 @@ export function validarContas(dados: unknown): ContasState | null {
   const saldo2 = numero(registro.saldo2)
   const reserva = numero(registro.reserva)
   const porcentagem1 = numero(registro.porcentagem1)
+  const emprestado = registro.emprestado === undefined ? 0 : numero(registro.emprestado)
 
-  if (saldo === null || saldo2 === null || reserva === null || porcentagem1 === null) {
+  if (
+    saldo === null ||
+    saldo2 === null ||
+    reserva === null ||
+    porcentagem1 === null ||
+    emprestado === null
+  ) {
     return null
   }
 
-  return { saldo, saldo2, reserva, porcentagem1 }
+  return { saldo, saldo2, reserva, porcentagem1, emprestado }
 }
 
 export function migrarContasAntigas(dados: unknown): ContasState | null {
@@ -63,6 +71,7 @@ export function migrarContasAntigas(dados: unknown): ContasState | null {
     saldo2,
     reserva,
     porcentagem1: porcentagem1 >= 0 && porcentagem1 <= 1 ? porcentagem1 : 0.3,
+    emprestado: 0,
   }
 }
 

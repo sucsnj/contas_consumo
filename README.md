@@ -6,6 +6,11 @@ O app controla dois saldos (Conta 1 e Conta 2) com um valor total em comum,
 divide a diferença entre as entradas pelo percentual configurado, registra
 pagamentos e calcula tudo automaticamente conforme o usuário digita.
 
+Quando um pagamento da conta 1 passa do saldo, a reserva cobre a diferença e o
+excedente fica registrado em **Emprestado** (negativo). O botão **Devolução**
+cede saldo de volta para a reserva assim que a conta 1 tiver valor, sem deixar
+o saldo ou a reserva negativos.
+
 ## Stack
 
 - Vite 8 + React 19 + TypeScript 6

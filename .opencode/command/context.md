@@ -19,6 +19,9 @@ Regras do agente:
 - Nao implementar funcionalidades sem atualizar o PROJECT_STATUS.md.
 - Nao duplicar regras de negocio: as regras da planilha vivem em src/lib/calc/engine.ts
   e as regras da expressao/calculadora em src/lib/calc/calculadora.ts.
+- Emprestado/devolucao (ADR-0010): pagar saldo alem do saldo consome a reserva
+  e acumula divida em `emprestado` (<= 0); nunca deixe reserva negativa. O
+  botao Devolucao cede min(saldo, -emprestado) de volta para a reserva.
 - A persistencia e SQLite (src/server/repositorio.ts); o cliente fala HTTP por
   src/lib/db/http.ts. Nao introduzir persistencia paralela no navegador.
 - Reutilizar componentes e hooks existentes antes de criar novos.
