@@ -9,7 +9,7 @@ Termos do negocio do app. Os nomes de tela e de codigo derivam daqui.
 | reserva | `reserva` |Carteira separada, **nao entra no total**. |
 | total | `total` | `saldo + saldo2`. Derivado, nunca digitado. |
 | entrada | `entrada` | Saldo **desejado** para a conta 1. Nao e deposito. Precisa ser maior ou igual a `reserva`. |
-| entrada2 | `entrada2` | Novo valor **absoluto** do `saldo2` (substitui). O campo ja vem preenchido com o saldo2 atual. |
+| entrada2 | `entrada2` | Movimento historico que substituia o `saldo2` pelo valor absoluto. A edicao agora e feita direto no resumo; o tipo permanece para historicos antigos. |
 | diferenca | `diferenca` | `entrada - reserva`, nunca negativa (menor que zero retorna 0). |
 | porcentagem1 | `porcentagem1` | Fracao entre 0 e 1, padrao `0.3`. Multiplica a diferenca e o resultado vai para a **reserva**. |
 | porcentagem2 | `porcentagem2` | `1 - porcentagem1`. Complemento que vai para o **saldo**. |

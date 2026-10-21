@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { LogOut, RotateCcw, ShieldCheck } from 'lucide-react'
 import { Badge } from '../components/Badge'
 import { BotaoDesfazer } from '../components/BotaoDesfazer'
-import { Entrada2Campo } from '../components/Entrada2Campo'
 import { EntradaCalculo } from '../components/EntradaCalculo'
 import { HistoricoEstados } from '../components/HistoricoEstados'
 import { IndicadorCarregamento } from '../components/IndicadorCarregamento'
@@ -132,19 +131,14 @@ export function DashboardPage() {
             tom="cinza"
           />
           <div className="valor-ajustavel">
-            <div className="resumo-linha">
-              <span className="resumo-rotulo">Emprestado</span>
-            </div>
+            <span className="resumo-rotulo">Emprestado</span>
             <p className={`resumo-valor valor-${tomSituacao(contas.emprestado)}`}>
               {formatarMoeda(contas.emprestado)}
             </p>
           </div>
         </section>
 
-        <section className="grid-2">
-          <EntradaCalculo />
-          <Entrada2Campo />
-        </section>
+        <EntradaCalculo />
 
         <section className="grid-2">
           <HistoricoEstados />

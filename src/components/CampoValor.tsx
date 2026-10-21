@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 interface CampoValorProps {
   id: string
   valor: string
@@ -5,6 +7,7 @@ interface CampoValorProps {
   aoConfirmar?: () => void
   placeholder?: string
   className?: string
+  autoFocar?: boolean
 }
 
 export function CampoValor({
@@ -14,9 +17,19 @@ export function CampoValor({
   aoConfirmar,
   placeholder,
   className,
+  autoFocar = false,
 }: CampoValorProps) {
+  const referencia = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!autoFocar) return
+    referencia.current?.focus()
+    referencia.current?.select()
+  }, [autoFocar])
+
   return (
     <input
+      ref={referencia}
       id={id}
       className={className === undefined ? 'input' : `input ${className}`}
       type="text"

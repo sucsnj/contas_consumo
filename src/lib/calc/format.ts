@@ -20,20 +20,3 @@ export function formatarPercentual(fracao: number): string {
 export function formatarValorDigitado(valor: number): string {
   return Number.isInteger(valor) ? String(valor) : String(valor).replace('.', ',')
 }
-
-const regexMilhar = /^-?\d{1,3}(\.\d{3})+,\d+$/
-const regexDecimal = /^-?\d+(?:[.,]\d+)?$/
-
-export function analisarValor(texto: string): number | null {
-  const limpo = texto.trim().replace(/\s/g, '')
-  if (limpo === '' || limpo === '-') return null
-
-  const normalizado = regexMilhar.test(limpo)
-    ? limpo.replace(/\./g, '').replace(',', '.')
-    : limpo.replace(',', '.')
-
-  if (!regexDecimal.test(normalizado)) return null
-
-  const valor = Number(normalizado)
-  return Number.isFinite(valor) ? valor : null
-}

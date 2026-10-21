@@ -68,7 +68,10 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
   reserva e 70% para o saldo; a confirmacao aplica `novo_reserva`,
   `novo_saldo`, zera `entrada` e recalcula `total`.
   A entrada so pode ser confirmada quando `entrada >= reserva`.
-- `entrada2` e o valor **absoluto** do novo `saldo2` (substitui).
+- `saldo2` e ajustado tocando no valor do resumo (mesma edicao de saldo,
+  reserva e porcentagem). O card dedicado de entrada 2 foi removido; a acao
+  `confirmarEntrada2` e o tipo de movimento `entrada2` permanecem para
+  historicos antigos.
 - Previa em tempo real antes de confirmar.
 - Calculadora inline nos inputs (sem keypad), resultado com duas casas
   decimais (nunca arredondado para inteiro).
@@ -392,8 +395,21 @@ src/
 - Novo bloco em destaque para o `total` acima dos indicadores (fonte maior,
   fundo escuro e badge de situacao); o total saiu do subtitulo do cabecalho.
 - Saldo, reserva, saldo 2, porcentagem e emprestado foram compactados (gap e
-  margens menores, lapis de ajuste inline com o rotulo) sem reduzir a fonte
-  dos valores.
+  margens menores) sem reduzir a fonte dos valores.
+
+### Ajuste - edicao do resumo ao tocar no valor
+- O lapis de ajuste saiu: tocar no valor de saldo, reserva, saldo 2 ou
+  porcentagem abre a edicao com o valor atual preenchido e ja selecionado.
+  Enter ou o botao de check confirma, o X cancela e o campo volta ao modo de
+  leitura.
+- A edicao usa a mesma calculadora inline dos demais campos (`useExpressao`):
+  aceita `100+50`, `300*0,3` etc., mostra a previa do resultado e confirma o
+  valor calculado. `analisarValor` (parser simples, sem uso) foi removido.
+- `CampoValor` ganhou `autoFocar`, que foca e seleciona o conteudo do input;
+  a classe `input-valor` mantem o destaque do numero.
+- Emprestado continua somente leitura.
+- `src/components/Entrada2Campo.tsx` foi removido: o saldo 2 e editado no
+  resumo. A `EntradaCalculo` passou a ocupar a largura toda da pagina.
 
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
