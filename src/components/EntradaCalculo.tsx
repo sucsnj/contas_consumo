@@ -85,7 +85,7 @@ export function EntradaCalculo() {
       </div>
 
       {resultado !== null && resultado > 0 ? (
-        <PagamentosRapidos valor={resultado} aoPagar={limpar} />
+        <PagamentosRapidos valor={resultado} aoConcluir={limpar} />
       ) : null}
     </section>
   )

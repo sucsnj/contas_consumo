@@ -20,7 +20,7 @@ function renderizar(contas: ContasState, valor: number): string {
   return normalizar(
     renderToStaticMarkup(
       <ContasContext.Provider value={valorContas}>
-        <PagamentosRapidos valor={valor} aoPagar={() => undefined} />
+        <PagamentosRapidos valor={valor} aoConcluir={() => undefined} />
       </ContasContext.Provider>,
     ),
   )

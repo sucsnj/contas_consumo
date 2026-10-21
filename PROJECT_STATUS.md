@@ -370,7 +370,8 @@ src/
 - Botao "Devolucao": aparece junto dos botoes de pagar, com a mesma condicao
   (valor valido digitado), e fica clicavel quando `emprestado < 0` e
   `saldo > 0`. Cede `min(saldo, -emprestado)` do saldo para a reserva, com
-  devolucao parcial quando o saldo nao cobre.
+  devolucao parcial quando o saldo nao cobre. Ao clicar, o campo de entrada
+  tambem e limpo (`aoConcluir` em `PagamentosRapidos`).
 - src/lib/calc/engine.ts: `reservaNecessaria`, `pagamentoValido`,
   `saldoAposPagamento` (saldo limitado a zero), `pagar`, `valorDevolucao`,
   `devolucaoPossivel` e `devolver`. `arredondarMoeda` normaliza `-0`.

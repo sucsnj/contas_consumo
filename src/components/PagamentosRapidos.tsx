@@ -13,10 +13,10 @@ import type { DestinoPagamento } from '../types/domain'
 
 interface PagamentosRapidosProps {
   valor: number
-  aoPagar: () => void
+  aoConcluir: () => void
 }
 
-export function PagamentosRapidos({ valor, aoPagar }: PagamentosRapidosProps) {
+export function PagamentosRapidos({ valor, aoConcluir }: PagamentosRapidosProps) {
   const { estado, despachar } = useContas()
   const { contas } = estado
 
@@ -30,12 +30,13 @@ export function PagamentosRapidos({ valor, aoPagar }: PagamentosRapidosProps) {
 
   function pagarDestino(destino: DestinoPagamento) {
     despachar({ tipo: 'pagar', destino, valor })
-    aoPagar()
+    aoConcluir()
   }
 
   function confirmarDevolucao() {
     if (!podeDevolver) return
     despachar({ tipo: 'devolver' })
+    aoConcluir()
   }
 
   return (
