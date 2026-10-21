@@ -105,9 +105,10 @@ function tokenizar(expressao: string): Token[] | null {
 }
 
 export function calcular(expressao: string): number | null {
-  if (estaVazia(expressao)) return null
+  const completa = expressao.replace(/[+\-*/]+$/, '')
+  if (estaVazia(completa)) return null
 
-  const tokens = tokenizar(expressao)
+  const tokens = tokenizar(completa)
   if (tokens === null || tokens.length === 0) return null
 
   const saida: (number | string)[] = []

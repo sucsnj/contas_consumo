@@ -411,6 +411,13 @@ src/
 - `src/components/Entrada2Campo.tsx` foi removido: o saldo 2 e editado no
   resumo. A `EntradaCalculo` passou a ocupar a largura toda da pagina.
 
+### Ajuste - operador pendente na calculadora
+- `calcular` descarta sinais de operacao no final (`+`, `-`, `*`, `/`) antes
+  de avaliar: `150+30+` resulta em 180, `2*` em 2. Expressoes que comecam com
+  operador, parenteses desbalanceados e divisao por zero continuam invalidos.
+- Com isso as mensagens "Expressao incompleta" e "Informe um numero valido"
+  nao aparecem mais enquanto o usuario digita o proximo numero.
+
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
   (ou Enter) confirma e zera o campo.

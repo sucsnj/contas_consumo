@@ -107,9 +107,17 @@ describe('calcular', () => {
     expect(calcular('0.1+0.2')).toBeCloseTo(0.3, 10)
   })
 
+  it('ignora sinal de operacao no final', () => {
+    expect(calcular('150+')).toBe(150)
+    expect(calcular('150+30+')).toBe(180)
+    expect(calcular('2*')).toBe(2)
+    expect(calcular('(10+5)*')).toBe(15)
+    expect(calcular('10*-')).toBe(10)
+  })
+
   it('retorna null para expressoes invalidas', () => {
     expect(calcular('')).toBeNull()
-    expect(calcular('150+30+')).toBeNull()
+    expect(calcular('+')).toBeNull()
     expect(calcular('(10+2')).toBeNull()
     expect(calcular('10+2)')).toBeNull()
     expect(calcular('10/0')).toBeNull()
@@ -126,6 +134,10 @@ describe('calcularResultado', () => {
   })
 
   it('mantem null quando a expressao esta incompleta', () => {
-    expect(calcularResultado('150+')).toBeNull()
+    expect(calcularResultado('(150+30')).toBeNull()
+  })
+
+  it('calcula ignorando o sinal de operacao no final', () => {
+    expect(calcularResultado('150+')).toBe(150)
   })
 })

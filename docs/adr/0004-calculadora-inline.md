@@ -19,6 +19,8 @@ a calculadora:
 - um separador decimal por numero, parenteses balanceados, `(` depois de
   numero vira `*(`, limite de 40 caracteres;
 - o resultado aparece abaixo do campo em tempo real (debounce de 300ms);
+- sinal de operacao no final nao invalida a expressao: `150+30+` calcula
+  `150+30` (o operador pendente e descartado);
 - o resultado e limitado a **duas casas decimais**, sem arredondar para
   inteiro (`calcularResultado` reaproveita `arredondarMoeda` do engine);
 - `Enter` confirma.
