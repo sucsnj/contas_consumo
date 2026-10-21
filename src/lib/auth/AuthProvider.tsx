@@ -31,7 +31,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return
         }
 
-        void limparToken()
+        // Servidor fora do ar nao invalida o token: so nao da para confirmar agora.
+        if (resultado !== 'servidor-indisponivel') void limparToken()
       }
 
       setStatus('nao-autenticado')

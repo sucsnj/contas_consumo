@@ -2,6 +2,14 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { KeyRound, Lock } from 'lucide-react'
 import { useAuth } from '../lib/auth/useAuth'
+import type { ResultadoAutenticacao } from '../lib/auth/token'
+
+const MENSAGENS: Record<Exclude<ResultadoAutenticacao, 'autenticado'>, string> = {
+  'token-invalido': 'Token inválido.',
+  'servidor-sem-token': 'O servidor não tem BEARER_TOKEN configurado no .env.',
+  'servidor-indisponivel':
+    'Servidor indisponível. Inicie a API com npm run dev ou npm run dev:api.',
+}
 
 export function LoginPage() {
   const { entrar } = useAuth()
@@ -19,11 +27,7 @@ export function LoginPage() {
 
     if (resultado === 'autenticado') return
 
-    setErro(
-      resultado === 'servidor-sem-token'
-        ? 'O servidor não tem BEARER_TOKEN configurado no .env.'
-        : 'Token inválido.',
-    )
+    setErro(MENSAGENS[resultado])
   }
 
   return (

@@ -28,12 +28,21 @@ npm test         # testes
 
 ### Desenvolvimento
 
-O frontend e o servidor rodam separados:
+Um unico comando sobe o frontend e a API:
 
 ```bash
-npm run dev      # Vite em http://localhost:5173 (proxy de /api)
-npm run dev:api  # servidor/API em http://localhost:4173
+npm run dev      # Vite em http://localhost:5173 + API em 127.0.0.1:4173 (proxy de /api)
 ```
+
+Se preferir os processos separados (por exemplo, para reiniciar so a API):
+
+```bash
+npx vite         # apenas o frontend (proxy de /api para 4173)
+npm run dev:api  # apenas o servidor/API
+```
+
+Sem a API no ar, o login avisa "Servidor indisponivel" (e o token nao e
+apagado, entao basta subir a API e entrar de novo).
 
 ## Banco de dados
 

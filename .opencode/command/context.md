@@ -33,8 +33,8 @@ empacotamento.
 
 Comandos uteis:
 
-- npm run dev - Vite (proxy de /api)
-- npm run dev:api - servidor/API em outro terminal
+- npm run dev - API + Vite no mesmo processo (proxy de /api)
+- npm run dev:api - so a API (npx vite sobe so o frontend)
 - npm run build - build de producao
 - npm run start - build + servidor local em http://localhost:4173
 - npm run api - sobe apenas o servidor

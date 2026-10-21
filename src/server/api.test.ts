@@ -76,6 +76,15 @@ describe('API HTTP', () => {
     expect(invalido.status).toBe(401)
   })
 
+  it('rejeita JSON invalido na sessao', async () => {
+    const resposta = await fetch(`${contexto.base}/api/sessao`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{invalido',
+    })
+    expect(resposta.status).toBe(400)
+  })
+
   it('exige o bearer em todas as rotas de dados', async () => {
     const semToken = await fetch(`${contexto.base}/api/estado`)
     expect(semToken.status).toBe(401)

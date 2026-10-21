@@ -148,7 +148,9 @@ src/
     repositorio.ts - esquema e acesso ao banco
     api.ts         - rotas /api, JSON e bearer
     servidor.ts    - HTTP + arquivos estaticos do dist/
-    iniciar.ts     - entrypoint (env, banco, listen)
+    iniciarApi.ts  - env, banco e listen (reutilizado pelos entrypoints)
+    iniciar.ts     - entrypoint de producao (npm run api)
+    desenvolvimento.ts - entrypoint de dev (API + Vite)
   store/       - estado global (context/reducer) (Etapa 3)
   types/       - tipos de dominio
   App.tsx, main.tsx, index.css, vite-env.d.ts
@@ -161,8 +163,8 @@ src/
 
 ## 8. Comandos basicos
 
-- Desenvolvimento: npm run dev (Vite, com proxy de /api)
-- Servidor/API no desenvolvimento: npm run dev:api (outro terminal)
+- Desenvolvimento: npm run dev (sobe a API e o Vite, com proxy de /api)
+- Apenas a API: npm run dev:api (npx vite sobe apenas o frontend)
 - Build: npm run build
 - Producao local: npm run start (gera o build e sobe o servidor em 4173)
 - Somente servidor/API: npm run api
@@ -328,6 +330,24 @@ src/
   reescrito; removidos queries.test.ts e estado.test.ts (cobertura migrou para
   os testes da API e da validacao). Total geral: 91 testes.
   TSC, lint, testes, build e teste manual do servidor verificados.
+
+### Correcao - modo de desenvolvimento sem a API
+- Sintoma: com `npm run dev` o login respondia "Token invalido" e o Vite
+  logava `connect ECONNREFUSED 127.0.0.1:4173`, porque o proxy apontava para
+  uma API que nao estava rodando.
+- src/server/iniciarApi.ts: extracao de env + banco + listen de iniciar.ts,
+  agora reutilizado por dois entrypoints. Fecha o banco se a porta falhar.
+- src/server/desenvolvimento.ts: sobe a API e o Vite no mesmo processo, com o
+  proxy apontando para a porta real da API e encerramento conjunto.
+- src/server/iniciar.ts: virou o entrypoint fino de producao.
+- `npm run dev` passou a subir os dois; `npx vite` continua servindo apenas o
+  frontend e `npm run dev:api` apenas a API.
+- src/lib/auth/token.ts: novo resultado `servidor-indisponivel` (falha de rede
+  ou 5xx do proxy). LoginPage mostra "Servidor indisponivel" em vez de "Token
+  invalido", e o AuthProvider nao apaga mais o token salvo nesse caso.
+- vite.config.ts: proxy usa `PORT` quando definido.
+- Testes: token.test.ts cobre falha de rede e 500 do proxy; api.test.ts cobre
+  JSON invalido em /api/sessao (antes caia em 500). Total: 93 testes.
 
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao

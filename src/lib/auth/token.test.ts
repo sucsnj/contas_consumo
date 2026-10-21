@@ -32,10 +32,16 @@ describe('verificarToken', () => {
     expect(fetchFalso).not.toHaveBeenCalled()
   })
 
-  it('trata falha de rede como token invalido', async () => {
+  it('distingue servidor fora do ar de token invalido', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new Error('sem rede'))))
 
-    expect(await verificarToken('abc')).toBe('token-invalido')
+    expect(await verificarToken('abc')).toBe('servidor-indisponivel')
+  })
+
+  it('trata proxy sem API como servidor indisponivel', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(null, { status: 500 })))
+
+    expect(await verificarToken('abc')).toBe('servidor-indisponivel')
   })
 })
 

@@ -96,6 +96,17 @@ function tokenDoCorpo(corpo: unknown): string | null {
   return typeof token === 'string' ? token.trim() : null
 }
 
+function responderErro(res: ServerResponse, erro: unknown): true {
+  if (erro instanceof ErroRequisicao) {
+    enviarJson(res, erro.status, { erro: erro.message })
+    return true
+  }
+
+  console.error('[contas] erro na API', erro)
+  enviarJson(res, 500, { erro: 'erro interno' })
+  return true
+}
+
 export async function tratarApi(
   req: IncomingMessage,
   res: ServerResponse,
@@ -113,14 +124,18 @@ export async function tratarApi(
       return true
     }
 
-    const token = tokenDoCorpo(await lerJson(req))
-    if (token === null || !compararToken(token, tokenEsperado)) {
-      enviarJson(res, 401, { erro: 'token invalido' })
-      return true
-    }
+    try {
+      const token = tokenDoCorpo(await lerJson(req))
+      if (token === null || !compararToken(token, tokenEsperado)) {
+        enviarJson(res, 401, { erro: 'token invalido' })
+        return true
+      }
 
-    enviarVazio(res, 204)
-    return true
+      enviarVazio(res, 204)
+      return true
+    } catch (erro) {
+      return responderErro(res, erro)
+    }
   }
 
   if (tokenEsperado === null) {
@@ -195,14 +210,7 @@ export async function tratarApi(
       return true
     }
   } catch (erro) {
-    if (erro instanceof ErroRequisicao) {
-      enviarJson(res, erro.status, { erro: erro.message })
-      return true
-    }
-
-    console.error('[contas] erro na API', erro)
-    enviarJson(res, 500, { erro: 'erro interno' })
-    return true
+    return responderErro(res, erro)
   }
 
   enviarJson(res, 404, { erro: 'rota nao encontrada' })
