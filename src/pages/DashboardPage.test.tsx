@@ -98,7 +98,7 @@ describe('DashboardPage', () => {
     expect(html).toContain('Reverter')
   })
 
-  it('mostra o emprestado e permite devolucao quando ha divida com a reserva', () => {
+  it('mostra o emprestado da conta 1', () => {
     const html = renderizarCom({
       contas: { saldo: 300, saldo2: 0, reserva: 200, porcentagem1: 0.3, emprestado: -70 },
       movimentos: [],
@@ -107,16 +107,6 @@ describe('DashboardPage', () => {
 
     expect(html).toContain('Emprestado')
     expect(html).toContain('-R$ 70,00')
-    expect(html).toContain('Devolução')
-    expect(html).toContain('Devolve R$ 70,00')
-  })
-
-  it('deixa a devolucao desabilitada sem emprestado negativo', () => {
-    const html = renderizarCom({ contas: criarEstadoInicial(), movimentos: [], estados: [] })
-
-    expect(html).toContain('Emprestado')
-    expect(html).toContain('Devolução')
-    expect(html).toContain('Sem empréstimo a devolver.')
   })
 
   it('mostra o indicador de autenticacao e a acao de sair', () => {

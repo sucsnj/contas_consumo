@@ -142,7 +142,7 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
 ## 6. Estrutura de codigo
 
 src/
-  components/  - componentes de UI (conta, entrada, calculadora, badge)
+  components/  - componentes de UI (conta, entrada, pagamentos, calculadora, badge)
   hooks/       - hooks custom (useDebounce)
   lib/
     auth/      - contexto e validacao do token (Etapa 6/7)
@@ -367,23 +367,25 @@ src/
   negativo por pagamento.
 - `pagamentoValido` bloqueia quando a reserva nao cobre o excedente; a UI
   desabilita o botao e mostra em vermelho quanto falta.
-- Botao "Devolucao" (visivel apenas com `emprestado < 0`) cede
-  `min(saldo, -emprestado)` do saldo para a reserva, com devolucao parcial
-  quando o saldo nao cobre.
+- Botao "Devolucao": aparece junto dos botoes de pagar, com a mesma condicao
+  (valor valido digitado), e fica clicavel quando `emprestado < 0` e
+  `saldo > 0`. Cede `min(saldo, -emprestado)` do saldo para a reserva, com
+  devolucao parcial quando o saldo nao cobre.
 - src/lib/calc/engine.ts: `reservaNecessaria`, `pagamentoValido`,
   `saldoAposPagamento` (saldo limitado a zero), `pagar`, `valorDevolucao`,
   `devolucaoPossivel` e `devolver`. `arredondarMoeda` normaliza `-0`.
 - Store: acao `devolver` e tipo de movimento `devolucao`; ESTADO_INICIAL e
   reiniciar agora usam `criarEstadoInicial` (sem duplicar o estado vazio).
 - UI: card "Emprestado" no resumo, icone/rotulo do movimento, emprestado no
-  historico de estados e aviso da reserva no pagamento do saldo.
+  historico de estados e aviso da reserva no pagamento do saldo. Os botoes de
+  pagar e a devolucao foram extraidos para `src/components/PagamentosRapidos.tsx`.
 - Persistencia: coluna `emprestado` em `estado` e `estados_historico`, com
   `ALTER TABLE` para bancos existentes; movimentos antigos (JSON sem o campo)
   sao lidos como zero. `validarContas` assume zero quando o campo falta.
 - docs/adr/0010-emprestado-e-devolucao.md criado; ADR-0008 marcada como
   substituida para o saldo; GLOSSARIO atualizado.
-- Testes: engine, reducer, validacao, repositorio, api e dashboard cobrem os
-  novos fluxos. Total: 110 testes.
+- Testes: engine, reducer, validacao, repositorio, api, dashboard e o novo
+  PagamentosRapidos cobrem os fluxos. Total: 114 testes.
 
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
