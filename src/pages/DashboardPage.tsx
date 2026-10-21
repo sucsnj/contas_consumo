@@ -77,10 +77,7 @@ export function DashboardPage() {
         <header className="page-header">
           <div>
             <h1 className="app-title">Contas</h1>
-            <p className="page-subtitle">
-              Entrada dividida entre saldo e reserva - total {formatarMoeda(total)}{' '}
-              <Badge tom={tomTotal}>{rotuloSituacao(total)}</Badge>
-            </p>
+            <p className="page-subtitle">Entrada dividida entre saldo e reserva</p>
           </div>
           <div className="header-actions">
             <Badge tom="azul">
@@ -96,6 +93,14 @@ export function DashboardPage() {
             </button>
           </div>
         </header>
+
+        <section className="resumo-total">
+          <div>
+            <span className="resumo-rotulo">Total</span>
+            <p className="resumo-total-valor">{formatarMoeda(total)}</p>
+          </div>
+          <Badge tom={tomTotal}>{rotuloSituacao(total)}</Badge>
+        </section>
 
         <section className="resumo-grid">
           <ValorAjustavel
@@ -127,7 +132,9 @@ export function DashboardPage() {
             tom="cinza"
           />
           <div className="valor-ajustavel">
-            <span className="resumo-rotulo">Emprestado</span>
+            <div className="resumo-linha">
+              <span className="resumo-rotulo">Emprestado</span>
+            </div>
             <p className={`resumo-valor valor-${tomSituacao(contas.emprestado)}`}>
               {formatarMoeda(contas.emprestado)}
             </p>

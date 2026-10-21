@@ -32,19 +32,21 @@ export function ValorAjustavel({ campo, rotulo, valor, formatar, tom }: ValorAju
   if (!editando) {
     return (
       <div className="valor-ajustavel">
-        <span className="resumo-rotulo">{rotulo}</span>
+        <div className="resumo-linha">
+          <span className="resumo-rotulo">{rotulo}</span>
+          <button
+            type="button"
+            className="btn-icone btn-icone-mini"
+            aria-label={`Ajustar ${rotulo}`}
+            onClick={() => {
+              setTexto(String(valor).replace('.', ','))
+              setEditando(true)
+            }}
+          >
+            <Pencil size={14} />
+          </button>
+        </div>
         <p className={`resumo-valor valor-${tom}`}>{formatar(valor)}</p>
-        <button
-          type="button"
-          className="btn-icone"
-          aria-label={`Ajustar ${rotulo}`}
-          onClick={() => {
-            setTexto(String(valor).replace('.', ','))
-            setEditando(true)
-          }}
-        >
-          <Pencil size={14} />
-        </button>
       </div>
     )
   }

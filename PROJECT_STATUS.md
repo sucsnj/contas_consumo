@@ -388,6 +388,13 @@ src/
 - Testes: engine, reducer, validacao, repositorio, api, dashboard e o novo
   PagamentosRapidos cobrem os fluxos. Total: 114 testes.
 
+### Ajuste - layout do resumo
+- Novo bloco em destaque para o `total` acima dos indicadores (fonte maior,
+  fundo escuro e badge de situacao); o total saiu do subtitulo do cabecalho.
+- Saldo, reserva, saldo 2, porcentagem e emprestado foram compactados (gap e
+  margens menores, lapis de ajuste inline com o rotulo) sem reduzir a fonte
+  dos valores.
+
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
   (ou Enter) confirma e zera o campo.
