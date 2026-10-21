@@ -3,7 +3,7 @@ import type { Dispatch } from 'react'
 import type { Acao, AppState } from './reducer'
 
 export type Despachar = Dispatch<Acao>
-export type StatusDados = 'carregando' | 'pronto'
+export type StatusDados = 'carregando' | 'pronto' | 'erro'
 
 export interface ValorContas {
   estado: AppState

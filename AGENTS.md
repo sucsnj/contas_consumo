@@ -4,7 +4,10 @@
 Este arquivo define as regras a serem seguidas ao trabalhar neste projeto.
 
 ## Estrutura
-Todo codigo fica em src/. Manter a modularizacao e evitar duplicacao.
+- `src/` concentra o codigo do app (frontend) e o servidor em `src/server/`.
+- O servidor roda com Node (type stripping) e nao passa pelo bundler; arquivos
+  de `src/server/` importam modulos locais com extensao `.ts`.
+- `contas.db` e dado local (ignorado pelo git), nunca versionar.
 
 ## Regras obrigatorias
 - Seguir explicitamente boas praticas de programacao.

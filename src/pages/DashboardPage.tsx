@@ -52,6 +52,22 @@ export function DashboardPage() {
     return <IndicadorCarregamento />
   }
 
+  if (status === 'erro') {
+    return (
+      <div className="app-shell">
+        <main className="app-main">
+          <section className="card">
+            <h1 className="app-title">Nao foi possivel carregar os dados</h1>
+            <p className="page-subtitle">
+              O servidor nao respondeu. Confira se ele esta rodando (npm run api) e recarregue a
+              pagina. Nenhum dado foi alterado.
+            </p>
+          </section>
+        </main>
+      </div>
+    )
+  }
+
   const total = calcularTotal(contas)
   const tomTotal = tomSituacao(total)
 

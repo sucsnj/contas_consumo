@@ -40,3 +40,14 @@ Termos do negocio do app. Os nomes de tela e de codigo derivam daqui.
 | valor_disponivel_conta1 | `saldo` + `reserva` |
 | valor_disponivel_conta2 | `saldo2` |
 | percentual | `porcentagem1` |
+
+## Persistencia (ADR-0009)
+
+| Termo | Nome no codigo | Significado |
+| --- | --- | --- |
+| servidor | `src/server` | Processo Node que serve o `dist/` e a API; nao passa pelo bundler. |
+| api | `src/server/api.ts` | Rotas `/api/*` em JSON, protegidas por bearer token. |
+| repositorio | `Repositorio` | Interface unica de acesso ao banco (ler/gravar estado, estados e movimentos). |
+| banco | `contas.db` | Arquivo SQLite local; e o backup do app. |
+| migracao | `migrarDadosLegados` | Importacao unica do `localStorage` antigo para o banco, quando o banco esta vazio. |
+| sessao | `obterTokenSalvo` | Token do usuario; unico dado que continua no `localStorage`. |

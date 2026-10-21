@@ -3,7 +3,8 @@ import type { ReactNode } from 'react'
 import { limparToken, obterTokenSalvo, salvarToken } from '../db/queries/sessao'
 import { ContextoAuth } from './contextoAuth'
 import type { StatusAuth, ValorAuth } from './contextoAuth'
-import { tokenValido } from './token'
+import { verificarToken } from './token'
+import type { ResultadoAutenticacao } from './token'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -16,29 +17,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let ativo = true
 
-    obterTokenSalvo().then((salvo) => {
+    void (async () => {
+      const salvo = await obterTokenSalvo()
       if (!ativo) return
-      if (salvo !== null && tokenValido(salvo)) {
-        setToken(salvo)
-        setStatus('autenticado')
-        return
+
+      if (salvo !== null) {
+        const resultado = await verificarToken(salvo)
+        if (!ativo) return
+
+        if (resultado === 'autenticado') {
+          setToken(salvo)
+          setStatus('autenticado')
+          return
+        }
+
+        void limparToken()
       }
-      if (salvo !== null) void limparToken()
+
       setStatus('nao-autenticado')
-    })
+    })()
 
     return () => {
       ativo = false
     }
   }, [])
 
-  const entrar = useCallback((novoToken: string) => {
-    if (!tokenValido(novoToken)) return false
+  const entrar = useCallback(async (novoToken: string): Promise<ResultadoAutenticacao> => {
+    const resultado = await verificarToken(novoToken)
+    if (resultado !== 'autenticado') return resultado
 
-    setToken(novoToken)
+    const limpo = novoToken.trim()
+    setToken(limpo)
     setStatus('autenticado')
-    void salvarToken(novoToken)
-    return true
+    void salvarToken(limpo)
+    return resultado
   }, [])
 
   const sair = useCallback(() => {

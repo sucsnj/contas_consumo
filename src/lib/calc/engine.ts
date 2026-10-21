@@ -4,7 +4,7 @@ import type {
   DestinoPagamento,
   PreviaEntrada,
   PreviaEntrada2,
-} from '../../types/domain'
+} from '../../types/domain.ts'
 
 export const PORCENTAGEM_PADRAO = 0.3
 

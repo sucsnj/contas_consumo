@@ -2,17 +2,28 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { KeyRound, Lock } from 'lucide-react'
 import { useAuth } from '../lib/auth/useAuth'
-import { tokenConfigurado } from '../lib/auth/token'
 
 export function LoginPage() {
   const { entrar } = useAuth()
   const [token, setToken] = useState('')
   const [erro, setErro] = useState('')
+  const [enviando, setEnviando] = useState(false)
 
-  function aoEnviar(evento: FormEvent<HTMLFormElement>) {
+  async function aoEnviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
-    if (entrar(token)) return
-    setErro('Token inválido. Confira o valor de VITE_BEARER_TOKEN no arquivo .env.')
+    if (enviando) return
+
+    setEnviando(true)
+    const resultado = await entrar(token)
+    setEnviando(false)
+
+    if (resultado === 'autenticado') return
+
+    setErro(
+      resultado === 'servidor-sem-token'
+        ? 'O servidor não tem BEARER_TOKEN configurado no .env.'
+        : 'Token inválido.',
+    )
   }
 
   return (
@@ -42,13 +53,9 @@ export function LoginPage() {
 
         {erro !== '' ? <p className="login-erro">{erro}</p> : null}
 
-        <button type="submit" className="btn btn-primary login-botao">
-          Entrar
+        <button type="submit" className="btn btn-primary login-botao" disabled={enviando}>
+          {enviando ? 'Entrando...' : 'Entrar'}
         </button>
-
-        {tokenConfigurado() ? null : (
-          <p className="login-erro">VITE_BEARER_TOKEN não definido no .env.</p>
-        )}
       </form>
     </div>
   )

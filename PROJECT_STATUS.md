@@ -11,8 +11,9 @@ alem de uma calculadora simples e calculos automaticos diarios baseados nas entr
 
 - Vite 8 + React 19 + TypeScript 6
 - oxlint para lint
-- Sem backend (frontend only)
-- Autenticacao: token bearer via variavel de ambiente VITE_BEARER_TOKEN (.env)
+- Servidor Node sem dependencias servindo o `dist/` e a API JSON
+- Banco: SQLite embutido do Node (`node:sqlite`), arquivo `contas.db` (ADR-0009)
+- Autenticacao: token bearer validado no servidor (`BEARER_TOKEN` no `.env`)
 
 ## 3. Estado atual do projeto
 
@@ -37,15 +38,19 @@ alem de uma calculadora simples e calculos automaticos diarios baseados nas entr
       LoginPage, botao Sair e indicador "Autenticado" no dashboard,
       query de sessao, README e comando context atualizados.
       Total de 61 testes. TSC, lint, testes e build verificados.
+- [x] Etapa 7 - Banco de dados local (ADR-0009): servidor Node proprio em
+      src/server (repositorio SQLite, api, servidor e iniciar), API JSON com
+      token bearer validado no servidor, cliente HTTP em src/lib/db/http.ts,
+      validacao compartilhada em src/lib/db/validacao.ts, migracao automatica
+      do localStorage e tratamento de falha de carregamento. 91 testes.
 
 ### Pendente (proximas etapas, fora do escopo atual)
 - [ ] Reformulacao do modelo de dominio (ver secao 10): engine, store, UI,
       historico de 3 estados, desfazer em 5s e ajustes inline.
 - [ ] PWA: service worker, manifesto e icones para Windows e Android.
-- [ ] Migrar a persistencia de localStorage para IndexedDB
-      (offline real e dados para analises).
+- [ ] Backup automatico do `contas.db` e exportacao/importacao em JSON.
 - [ ] Empacotamento para Windows e Android (ferramentas a decidir).
-- [ ] Analises sobre o historico (consultas em src/lib/db/queries).
+- [ ] Analises sobre o historico (consultas em src/server/repositorio.ts).
 
 ## 10. Reformulacao do modelo de dominio
 
@@ -130,11 +135,20 @@ src/
   components/  - componentes de UI (conta, entrada, calculadora, badge)
   hooks/       - hooks custom (useDebounce)
   lib/
-    auth/      - contexto e token bearer (Etapa 6)
+    auth/      - contexto e validacao do token (Etapa 6/7)
     calc/      - engine de calculo, formatacao e testes
     db/
-      queries/ - queries do banco, incluindo historico (Etapa 3)
-  pages/       - paginas (dashboard)
+      client.ts      - armazenamento do navegador (somente sessao + migracao)
+      http.ts        - fetch da API com bearer
+      migracao.ts    - importacao unica do localStorage para o SQLite
+      validacao.ts   - validacao de formato compartilhada
+      queries/       - chamadas HTTP (estado, estados, movimentos, sessao)
+  pages/       - paginas (dashboard, login)
+  server/      - servidor Node + SQLite (Etapa 7)
+    repositorio.ts - esquema e acesso ao banco
+    api.ts         - rotas /api, JSON e bearer
+    servidor.ts    - HTTP + arquivos estaticos do dist/
+    iniciar.ts     - entrypoint (env, banco, listen)
   store/       - estado global (context/reducer) (Etapa 3)
   types/       - tipos de dominio
   App.tsx, main.tsx, index.css, vite-env.d.ts
@@ -147,17 +161,21 @@ src/
 
 ## 8. Comandos basicos
 
-- Desenvolvimento: npm run dev
+- Desenvolvimento: npm run dev (Vite, com proxy de /api)
+- Servidor/API no desenvolvimento: npm run dev:api (outro terminal)
 - Build: npm run build
-- Producao local: npm run start (gera o build e serve o dist/)
+- Producao local: npm run start (gera o build e sobe o servidor em 4173)
+- Somente servidor/API: npm run api
 - Lint: npm run lint
 - Testes: npm test
+- Banco: `contas.db` na raiz (ou `DB_PATH`); backup = copiar com o servidor parado
 
 ## 9. Registro de alteracoes
 
 ### Etapa 1 - Fundacoes
 - Scaffold: Vite 8 + React 19 + TypeScript 6 + oxlint (create-vite react-ts).
 - .env e .env.example com VITE_BEARER_TOKEN; .gitignore ignorando .env.
+  (Na Etapa 7 o nome passou a ser BEARER_TOKEN no servidor.)
 - src/index.css com design tokens (verde, azul, vermelho, amarelo, branco, cinza)
   e classes base (card, btn, input, badge, grid).
 - src/vite-env.d.ts, index.html em pt-BR, src/App.tsx e src/main.tsx.
@@ -181,7 +199,7 @@ src/
 - src/store/contasContext.ts, ContasProvider.tsx e useContas.ts.
   O provider hidrata do banco, persiste o estado atual e grava cada Movimento novo.
 - src/lib/db/client.ts: primitiva de armazenamento (localStorage com fallback
-  em memoria) - pronta para ser trocada por IndexedDB na etapa de PWA.
+  em memoria) - substituida pelo SQLite na Etapa 7 (hoje serve so a sessao).
 - src/lib/db/queries/estado.ts e historico.ts: queries do banco, com validacao
   dos dados lidos (obterEstado, persistirEstado, obterHistorico,
   registrarMovimento, obterHistoricoDaConta, limparHistorico).
@@ -227,13 +245,14 @@ src/
 ### Etapa 6 - Autenticacao e integracao final
 - src/lib/auth/token.ts: le VITE_BEARER_TOKEN do .env, valida o token digitado
   e monta o cabecalho "Authorization: Bearer <token>" (util para quando
-  houver API no futuro).
+  houver API no futuro). Na Etapa 7 a validacao passou para o servidor
+  (BEARER_TOKEN) via POST /api/sessao.
 - src/lib/auth/contextoAuth.ts, AuthProvider.tsx e useAuth.ts: sessao simples
   com estados carregando / nao-autenticado / autenticado, sessao salva no
   navegador e revalidada contra o .env ao abrir o app.
 - src/lib/db/queries/sessao.ts: obterTokenSalvo, salvarToken, limparToken.
 - src/pages/LoginPage.tsx: tela de acesso com campo de token, aviso de token
-  invalido e aviso quando VITE_BEARER_TOKEN nao esta definido.
+  invalido e aviso quando o token do servidor nao esta definido (Etapa 7).
 - src/components/IndicadorCarregamento.tsx: unifica a tela de carregamento
   usada pelo App e pelo DashboardPage.
 - src/App.tsx: AuthProvider -> LoginPage ou ContasProvider + DashboardPage.
@@ -277,6 +296,39 @@ src/
 - Testes: calculadora.test.ts ajustado. Total geral: 76 testes.
   TSC, lint, testes e build verificados.
 
+### Etapa 7 - Banco de dados local em SQLite
+- Motivacao: localStorage pode ser apagado pelo navegador sem aviso; perda
+  irreversivel para um controle financeiro (ADR-0009).
+- src/server/repositorio.ts: SQLite via `node:sqlite` (sem dependencia),
+  esquema `estado`, `estados_historico` e `movimentos`, journal DELETE e
+  sincronizacao FULL (um unico arquivo `.db` em repouso).
+- src/server/api.ts: API JSON com `POST /api/sessao`, `GET/PUT /api/estado`,
+  `GET/PUT /api/estados`, `GET/POST/DELETE /api/movimentos`, limite de corpo,
+  validacao de payload e bearer com `timingSafeEqual`.
+- src/server/servidor.ts + iniciar.ts: serve `dist/`, fallback da SPA e sobe
+  em `127.0.0.1:4173` (`PORT`, `HOST` e `DB_PATH` configuraveis).
+- src/lib/db/http.ts: fetch central com o bearer; as queries
+  (estado, estados, movimentos) trocaram localStorage por HTTP mantendo a
+  assinatura, sem mudar store nem componentes.
+- src/lib/db/validacao.ts: validacao de formato compartilhada entre servidor
+  e migracao (elimina a duplicacao que existia em queries/estado.ts).
+- src/lib/db/migracao.ts: na primeira carga, com o banco vazio, importa o
+  estado, os snapshots e os movimentos do localStorage (mesma origem, 4173) e
+  apaga as chaves antigas.
+- Autenticacao: `VITE_BEARER_TOKEN` sai do bundle; o servidor usa
+  `BEARER_TOKEN` (aceita o nome antigo com aviso). Login agora valida via
+  `POST /api/sessao`; a sessao continua no navegador.
+- ContasProvider: status `erro` quando o servidor nao responde (o dashboard
+  avisa e nao grava nada por cima) e limpeza dos movimentos no servidor ao
+  reiniciar.
+- Config: proxy de `/api` no vite.config.ts, tsconfig.server.json, scripts
+  `api`/`dev:api`/`start`, `.gitignore` com `*.db` e `.env.example`
+  atualizado.
+- Testes: validacao.test.ts, repositorio.test.ts, api.test.ts e token.test.ts
+  reescrito; removidos queries.test.ts e estado.test.ts (cobertura migrou para
+  os testes da API e da validacao). Total geral: 91 testes.
+  TSC, lint, testes, build e teste manual do servidor verificados.
+
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao
   (ou Enter) confirma e zera o campo.
@@ -284,7 +336,7 @@ src/
 - Pagamento subtrai do destino escolhido e pode deixar o campo negativo;
   pagar a reserva nao altera o `total` (que e sempre `saldo + saldo2`).
 - A calculadora nunca usa eval/Function: o parser e proprio (shunting-yard).
-- A autenticacao e de nivel simples e validada no cliente (nao ha backend).
-  Para uma API real, use cabecalhoAuthorization() nas requisicoes.
-- A persistencia usa localStorage com fallback em memoria; a troca por
-  IndexedDB deve passar por src/lib/db/client.ts e src/lib/db/queries.
+- A autenticacao e validada no servidor (ADR-0009); o token do `.env` nunca
+  vai para o bundle. Para chamadas manuais, use `cabecalhoAuthorization()`.
+- A persistencia e o SQLite (`contas.db`); `localStorage` guarda apenas o
+  token da sessao e serve a migracao unica dos dados antigos.

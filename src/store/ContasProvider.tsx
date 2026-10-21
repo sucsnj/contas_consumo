@@ -2,7 +2,8 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { obterEstado, persistirEstado } from '../lib/db/queries/estado'
 import { obterEstados, persistirEstados } from '../lib/db/queries/estados'
-import { obterMovimentos, registrarMovimento } from '../lib/db/queries/movimentos'
+import { limparMovimentos, obterMovimentos, registrarMovimento } from '../lib/db/queries/movimentos'
+import { migrarDadosLegados } from '../lib/db/migracao'
 import { ContasContext } from './contasContext'
 import type { StatusDados, ValorContas } from './contasContext'
 import { ESTADO_INICIAL, reducerContas } from './reducer'
@@ -22,9 +23,16 @@ export function ContasProvider({ children }: ContasProviderProps) {
   useEffect(() => {
     let ativo = true
 
-    Promise.all([obterEstado(), obterMovimentos(), obterEstados()]).then(
-      ([contas, movimentos, estados]) => {
+    void (async () => {
+      try {
+        await migrarDadosLegados()
+        const [contas, movimentos, estados] = await Promise.all([
+          obterEstado(),
+          obterMovimentos(),
+          obterEstados(),
+        ])
         if (!ativo) return
+
         despachar({
           tipo: 'hidratar',
           contas: contas ?? ESTADO_INICIAL.contas,
@@ -33,8 +41,11 @@ export function ContasProvider({ children }: ContasProviderProps) {
         })
         ultimoMovimentoSalvo.current = movimentos.at(-1)?.id ?? null
         setStatus('pronto')
-      },
-    )
+      } catch (erro) {
+        console.error('[contas] falha ao carregar os dados', erro)
+        if (ativo) setStatus('erro')
+      }
+    })()
 
     return () => {
       ativo = false
@@ -46,18 +57,34 @@ export function ContasProvider({ children }: ContasProviderProps) {
 
     if (contasSalvas.current !== estado.contas) {
       contasSalvas.current = estado.contas
-      void persistirEstado(estado.contas)
+      void persistirEstado(estado.contas).catch((erro: unknown) => {
+        console.error('[contas] falha ao salvar o estado', erro)
+      })
     }
 
     if (estadosSalvos.current !== estado.estados) {
       estadosSalvos.current = estado.estados
-      void persistirEstados(estado.estados)
+      void persistirEstados(estado.estados).catch((erro: unknown) => {
+        console.error('[contas] falha ao salvar os estados', erro)
+      })
+    }
+
+    if (estado.movimentos.length === 0) {
+      if (ultimoMovimentoSalvo.current !== null) {
+        ultimoMovimentoSalvo.current = null
+        void limparMovimentos().catch((erro: unknown) => {
+          console.error('[contas] falha ao limpar os movimentos', erro)
+        })
+      }
+      return
     }
 
     const ultimoMovimento = estado.movimentos.at(-1)
     if (ultimoMovimento && ultimoMovimento.id !== ultimoMovimentoSalvo.current) {
       ultimoMovimentoSalvo.current = ultimoMovimento.id
-      void registrarMovimento(ultimoMovimento)
+      void registrarMovimento(ultimoMovimento).catch((erro: unknown) => {
+        console.error('[contas] falha ao registrar o movimento', erro)
+      })
     }
   }, [estado, status])
 

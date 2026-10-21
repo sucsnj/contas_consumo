@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "npm run api",
     "build": "tsc -b && vite build",
-    "start": "npm run build && vite preview",
+    "start": "npm run build && npm run api",
+    "api": "node --env-file-if-exists=.env --experimental-strip-types src/server/iniciar.ts",
     "lint": "oxlint",
-    "test": "vitest run",
-    "preview": "vite preview"
+    "test": "vitest run"
   },
   "dependencies": {
     "lucide-react": "^1.58.0",

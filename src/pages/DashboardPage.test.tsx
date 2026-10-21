@@ -15,7 +15,7 @@ function normalizar(html: string): string {
 const valorAuth: ValorAuth = {
   status: 'autenticado',
   token: 'token',
-  entrar: () => true,
+  entrar: async () => 'autenticado',
   sair: () => undefined,
 }
 
