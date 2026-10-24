@@ -41,7 +41,7 @@ Na confirmacao:
 reserva = novo_reserva
 saldo   = novo_saldo
 entrada = 0
-total   = saldo + saldo2
+total   = saldo + saldo2 + emprestado
 ```
 
 O padrao de `porcentagem1` e `0.3`: **30% da diferenca vai para a reserva e

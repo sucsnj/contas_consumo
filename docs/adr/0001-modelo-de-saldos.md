@@ -20,15 +20,15 @@ O estado passa a ter quatro valores independentes:
 - `reserva` (carteira a parte)
 - `porcentagem1` (fracao entre 0 e 1, padrao 0.3)
 
-O `total` e sempre derivado: `total = saldo + saldo2`.
+O `total` e sempre derivado: `total = saldo + saldo2 + emprestado`.
 
 A reserva **nao** participa do total. Ela e um terceiro valor guardado, com
 pagamento proprio.
 
 ## Consequencias
 
-- Nenhum valor e calculado a partir de outro: `saldo`, `saldo2` e `reserva`
+- Nenhum valor é calculado a partir de outro: `saldo`, `saldo2` e `reserva`
   sao manipulados diretamente pelas operacoes.
-- `total` nunca e digitado nem ajustavel, eliminating a possibilidade de
+- `total` nunca e digitado nem ajustavel, eliminando a possibilidade de
   inconsistencia.
 - Cada valor tem pagamento e ajuste proprios, sem ambiguidade.

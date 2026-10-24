@@ -60,8 +60,8 @@ O modelo de negocio foi reformulado. Decisoes registradas em
 Regras vigentes da entrada e dos pagamentos: `docs/adr/0007-entrada-como-alvo-da-reserva.md`
 e `docs/adr/0008-pagamento-com-saldo-negativo.md`.
 
-Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
-`total = saldo + saldo2` (a reserva **nao** entra no total).
+Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3), `emprestado`.
+`total = saldo + saldo2 + emprestado` (a reserva **nao** entra no total).
 
 - `entrada` e o saldo **desejado** da conta 1 (nao e deposito):
   `diferenca = max(0, entrada - reserva)`; 30% da diferenca vai para a
@@ -88,7 +88,7 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
 
 ## 4. Decisoes de negocio registradas
 
-1. total_contas = valor_disponivel_conta1 + valor_disponivel_conta2.
+1. total_contas = valor_disponivel_conta1 + valor_disponivel_conta2 + valor_emprestado.
 2. Entrada na conta 1 (deposito, valor_novo_conta1 >= 0):
    valor_diferenca = max(0, valor_novo_conta1 - valor_atual).
    valor_porcentagem1 = valor_diferenca * percentual.
@@ -99,7 +99,7 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3).
    valor_disponivel_conta1 = valor_reserva.
 3. Entrada na conta 2 (valor_novo_conta2 pode ser negativa):
    valor_disponivel_conta2 = valor_disponivel_conta2 + valor_novo_conta2.
-   total_contas = valor_disponivel_conta1 + valor_disponivel_conta2.
+   total_contas = valor_disponivel_conta1 + valor_disponivel_conta2 + valor_emprestado.
 4. Pagamento (conta 1 ou conta 2):
    subtrai do valor_disponivel da conta informada e recalcula o total.
    No pagamento do saldo da conta 1, se o valor passar do saldo, a reserva
@@ -424,7 +424,7 @@ src/
 - Ao reiniciar, o historico persistido tambem e limpo.
 - `pagar reserva` e `pagar saldo2` ainda podem deixar o campo negativo;
   `pagar saldo` nunca deixa: o excedente vira `emprestado` e sai da reserva.
-- O `total` e sempre `saldo + saldo2`; `reserva` e `emprestado` ficam fora.
+- O `total` e sempre `saldo + saldo2 + emprestado`; `reserva` fica fora.
 - A calculadora nunca usa eval/Function: o parser e proprio (shunting-yard).
 - A autenticacao e validada no servidor (ADR-0009); o token do `.env` nunca
   vai para o bundle. Para chamadas manuais, use `cabecalhoAuthorization()`.

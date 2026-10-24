@@ -45,7 +45,7 @@ Na confirmacao:
 reserva = novo_reserva
 saldo   = novo_saldo
 entrada = 0
-total   = saldo + saldo2
+total   = saldo + saldo2 + emprestado
 ```
 
 ### Exemplo de referencia

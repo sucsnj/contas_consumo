@@ -32,7 +32,7 @@ Regras:
   funcao pura que devolve o valor resultante do campo; `pagar` aplica esse
   valor. A UI usa `saldoAposPagamento` para mostrar o resultado antes do
   clique.
-- `total` continua derivado: `saldo + saldo2`. Pagar a reserva **nao** mexe no
+- `total` continua derivado: `saldo + saldo2 + emprestado`. Pagar a reserva **nao** mexe no
   total; pagar `saldo` ou `saldo2` reduz o total.
 - O botao nunca e desabilitado por falta de saldo. Ele mostra sempre o valor
   resultante, destacado quando negativo.

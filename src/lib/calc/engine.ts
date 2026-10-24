@@ -24,7 +24,7 @@ export function criarEstadoInicial(porcentagem1: number = PORCENTAGEM_PADRAO): C
 }
 
 export function calcularTotal(estado: ContasState): number {
-  return arredondarMoeda(estado.saldo + estado.saldo2)
+  return arredondarMoeda(estado.saldo + estado.saldo2 + estado.emprestado)
 }
 
 export function valorDoCampo(estado: ContasState, campo: CampoAjustavel): number {
