@@ -30,5 +30,5 @@ pagamento proprio.
 - Nenhum valor é calculado a partir de outro: `saldo`, `saldo2` e `reserva`
   sao manipulados diretamente pelas operacoes.
 - `total` nunca e digitado nem ajustavel, eliminando a possibilidade de
-  inconsistencia.
+  inconsistencia. Com o `emprestado`, o total passa a `saldo + saldo2 + emprestado`.
 - Cada valor tem pagamento e ajuste proprios, sem ambiguidade.

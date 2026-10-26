@@ -67,7 +67,8 @@ Estado: `saldo`, `saldo2`, `reserva`, `porcentagem1` (padrao 0.3), `emprestado`.
   `diferenca = max(0, entrada - reserva)`; 30% da diferenca vai para a
   reserva e 70% para o saldo; a confirmacao aplica `novo_reserva`,
   `novo_saldo`, zera `entrada` e recalcula `total`.
-  A entrada so pode ser confirmada quando `entrada >= reserva`.
+  Qualquer numero finito pode ser confirmado; abaixo de `reserva` a diferenca
+  fica em zero e os saldos nao mudam (ADR-0011).
 - `saldo2` e ajustado tocando no valor do resumo (mesma edicao de saldo,
   reserva e porcentagem). O card dedicado de entrada 2 foi removido; a acao
   `confirmarEntrada2` e o tipo de movimento `entrada2` permanecem para
@@ -390,6 +391,13 @@ src/
   substituida para o saldo; GLOSSARIO atualizado.
 - Testes: engine, reducer, validacao, repositorio, api, dashboard e o novo
   PagamentosRapidos cobrem os fluxos. Total: 114 testes.
+
+### Ajuste - regras de entrada e total
+- Entrada: `diferenca = max(0, (entrada - saldo) - reserva)`. O saldo atual
+  e subtraido do alvo antes de dividir para reserva e saldo.
+- Total: `saldo + saldo2 + emprestado` (bloco em destaque no resumo). ADRs
+  0001, 0003, 0007, 0008 e 0010 atualizados.
+- Ao clicar em "Devolucao", o campo de entrada e limpo.
 
 ### Ajuste - layout do resumo
 - Novo bloco em destaque para o `total` acima dos indicadores (fonte maior,

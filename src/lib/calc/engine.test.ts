@@ -46,10 +46,10 @@ describe('calcularTotal', () => {
     expect(calcularTotal(estado)).toBe(500)
   })
 
-  it('nao considera o emprestado, que e uma divida entre saldo e reserva', () => {
+  it('inclui o emprestado no total', () => {
     const estado = contas({ saldo: 0, saldo2: 150, reserva: 450, porcentagem1: 0.3, emprestado: -50 })
 
-    expect(calcularTotal(estado)).toBe(150)
+    expect(calcularTotal(estado)).toBe(100)
   })
 })
 
@@ -64,13 +64,13 @@ describe('previaEntrada', () => {
     const estado = contas({ saldo: 350, saldo2: 0, reserva: 150, porcentagem1: 0.3 })
     const previa = previaEntrada(estado, 700)
 
-    expect(previa.diferenca).toBe(550)
+    expect(previa.diferenca).toBe(200)
     expect(previa.porcentagem2).toBe(0.7)
-    expect(previa.porcentagemReserva).toBe(165)
-    expect(previa.porcentagemSaldo).toBe(385)
-    expect(previa.novoReserva).toBe(315)
-    expect(previa.novoSaldo).toBe(735)
-    expect(previa.total).toBe(735)
+    expect(previa.porcentagemReserva).toBe(60)
+    expect(previa.porcentagemSaldo).toBe(140)
+    expect(previa.novoReserva).toBe(210)
+    expect(previa.novoSaldo).toBe(490)
+    expect(previa.total).toBe(490)
   })
 
   it('manda 30% para a reserva e 70% para o saldo', () => {
@@ -136,13 +136,13 @@ describe('confirmarEntrada', () => {
     const resultado = confirmarEntrada(estado, 700)
 
     expect(resultado).toEqual({
-      saldo: 735,
+      saldo: 490,
       saldo2: 100,
-      reserva: 315,
+      reserva: 210,
       porcentagem1: 0.3,
       emprestado: 0,
     })
-    expect(calcularTotal(resultado!)).toBe(835)
+    expect(calcularTotal(resultado!)).toBe(590)
   })
 
   it('devolve null quando a entrada e menor que a reserva', () => {

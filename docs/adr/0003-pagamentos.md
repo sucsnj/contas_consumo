@@ -29,7 +29,7 @@ Regras:
 - pagamento **nao pode** deixar `saldo`, `reserva` ou `saldo2` negativo: se o
   valor exceder o saldo disponivel, o botao fica desabilitado com aviso;
 - pagamento nao altera `total` diretamente: `total` e recalculado como
-  `saldo + saldo2`; **pagar a reserva, por isso, nao mexe no total**
+  `saldo + saldo2 + emprestado`; **pagar a reserva, por isso, nao mexe no total**
   (confirmado em revisao).
 
 A restricao de negativo vale **apenas** para pagamentos. Ajustes manuais e

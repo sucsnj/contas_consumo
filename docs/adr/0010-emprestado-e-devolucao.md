@@ -73,8 +73,10 @@ Se a operacao deixaria `reserva < 0`, ela nao e aplicada:
   pode deixar negativo, por ser uma correcao explicita).
 - `pagar reserva` e `pagar saldo2` seguem a ADR-0008: aceitam excedente e
   podem ficar negativos.
-- `total` continua `saldo + saldo2`: o emprestado e uma divida interna entre
-  saldo e reserva, nao altera o total.
+- `total` passa a ser `saldo + saldo2 + emprestado`. O emprestado e uma divida
+  interna entre saldo e reserva: quando criado por pagamento acima do saldo ele
+  reduz o "liquido" disponivel no total, e ao ser devolvido volta a integrar a
+  reserva sem alterar o total. `pagar reserva` continua nao mexendo no total.
 - Novo `MovimentoTipo` `devolucao`, com `campo = null` e `valor` igual ao
   devolvido. O rotulo e "Devolucao para a reserva".
 - Persistencia: coluna `emprestado` em `estado` e `estados_historico`.

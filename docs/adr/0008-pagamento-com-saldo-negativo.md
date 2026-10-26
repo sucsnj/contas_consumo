@@ -33,7 +33,8 @@ Regras:
   valor. A UI usa `saldoAposPagamento` para mostrar o resultado antes do
   clique.
 - `total` continua derivado: `saldo + saldo2 + emprestado`. Pagar a reserva **nao** mexe no
-  total; pagar `saldo` ou `saldo2` reduz o total.
+  total; pagar `saldo` ou `saldo2` reduz o total (e ao gerar emprestado o
+  total diminui pela quantia emprestada).
 - O botao nunca e desabilitado por falta de saldo. Ele mostra sempre o valor
   resultante, destacado quando negativo.
 - Ajuste manual e `entrada2` seguem aceitando negativos, como ja eram aceitos.

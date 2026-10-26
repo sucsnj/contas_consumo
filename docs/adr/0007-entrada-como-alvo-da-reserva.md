@@ -16,10 +16,10 @@ cima e nao deixa reaproveitar o valor guardado na reserva.
 
 ## Decisao
 
-A base da diferenca passa a ser a `reserva`:
+A base da diferenca passa a ser `reserva`, subtraindo o `saldo` atual:
 
 ```
-diferenca = max(0, entrada - reserva)
+diferenca = max(0, (entrada - saldo) - reserva)
 ```
 
 E a validacao da entrada passa a ser:
@@ -63,7 +63,7 @@ novo_saldo          = 385 + 350             = 735
 
 Confirmado: `saldo = 735`, `reserva = 315`, `total = 735`.
 
-`entrada2` nao muda: continua sendo o valor **absoluto** do novo `saldo2`.
+- `entrada2` nao muda: continua sendo o valor **absoluto** do novo `saldo2`. O `total` resultante e `novo_saldo + saldo2 + emprestado`.
 
 ## Consequencias
 
