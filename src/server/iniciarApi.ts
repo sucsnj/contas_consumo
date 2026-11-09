@@ -35,7 +35,7 @@ function lerPorta(): number {
 }
 
 export async function iniciarApi(): Promise<ApiIniciada> {
-  const host = process.env.HOST ?? '127.0.0.1'
+  const host = process.env.HOST ?? '0.0.0.0'
   const porta = lerPorta()
   const caminhoBanco = process.env.DB_PATH ?? join(process.cwd(), 'contas.db')
   const repositorio = abrirRepositorio(caminhoBanco)

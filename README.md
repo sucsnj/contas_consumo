@@ -24,7 +24,7 @@ o saldo ou a reserva negativos.
 
 ```bash
 npm install
-npm run start    # producao local: gera o build e sobe o servidor em http://localhost:4173
+npm run start    # producao local: gera o build e sobe o servidor em http://0.0.0.0:4173 (acessivel via Tailscale)
 npm run api      # sobe apenas o servidor (usa o dist/ ja gerado)
 npm run build    # apenas o build de producao (tsc + vite build) em dist/
 npm run lint     # lint
@@ -36,13 +36,13 @@ npm test         # testes
 Um unico comando sobe o frontend e a API:
 
 ```bash
-npm run dev      # Vite em http://localhost:5173 + API em 127.0.0.1:4173 (proxy de /api)
+npm run dev      # Vite em http://0.0.0.0:5173 + API em 0.0.0.0:4173 (proxy de /api, acessivel via Tailscale)
 ```
 
 Se preferir os processos separados (por exemplo, para reiniciar so a API):
 
 ```bash
-npx vite         # apenas o frontend (proxy de /api para 4173)
+npx vite         # apenas o frontend (proxy de /api para 4173, escuta em 0.0.0.0)
 npm run dev:api  # apenas o servidor/API
 ```
 

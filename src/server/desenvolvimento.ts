@@ -6,6 +6,7 @@ async function principal(): Promise<void> {
 
   const vite = await createServer({
     server: {
+      host: process.env.HOST ?? '0.0.0.0',
       proxy: {
         '/api': `http://127.0.0.1:${api.porta}`,
       },

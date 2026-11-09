@@ -322,7 +322,7 @@ src/
   `GET/PUT /api/estados`, `GET/POST/DELETE /api/movimentos`, limite de corpo,
   validacao de payload e bearer com `timingSafeEqual`.
 - src/server/servidor.ts + iniciar.ts: serve `dist/`, fallback da SPA e sobe
-  em `127.0.0.1:4173` (`PORT`, `HOST` e `DB_PATH` configuraveis).
+  em `0.0.0.0:4173` por padrao (`PORT`, `HOST` e `DB_PATH` configuraveis), acessivel na rede local e via Tailscale (use `HOST=127.0.0.1` para restringir).
 - src/lib/db/http.ts: fetch central com o bearer; as queries
   (estado, estados, movimentos) trocaram localStorage por HTTP mantendo a
   assinatura, sem mudar store nem componentes.
@@ -425,6 +425,12 @@ src/
   operador, parenteses desbalanceados e divisao por zero continuam invalidos.
 - Com isso as mensagens "Expressao incompleta" e "Informe um numero valido"
   nao aparecem mais enquanto o usuario digita o proximo numero.
+
+### Ajuste - acesso via Tailscale
+- Servidor e Vite passam a escutar em `0.0.0.0` por padrao (antes `127.0.0.1`),
+  tornando o app acessivel na rede local e pelo IP do Tailscale. Defina
+  `HOST=127.0.0.1` para restringir ao localhost.
+- `.env.example` documenta `HOST`.
 
 ### Observacoes para as proximas etapas
 - Previa e confirmacao sao acoes distintas: digitar mostra a previa, o botao

@@ -7,6 +7,7 @@ const portaApi = process.env.PORT ?? '4173'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: process.env.HOST ?? '0.0.0.0',
     proxy: {
       '/api': `http://127.0.0.1:${portaApi}`,
     },
